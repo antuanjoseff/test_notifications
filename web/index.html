@@ -31,8 +31,31 @@
 
   <title>test_notifications</title>
   <link rel="manifest" href="manifest.json">
+  <script src="https://www.gstatic.com/firebasejs/8.4.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.4.1/firebase-messaging.js"></script>  
 </head>
 <body>
-  <script src="flutter_bootstrap.js" async></script>
+  <!-- <script src="flutter_bootstrap.js" async></script> -->
+  <script>
+    <!--Update with yours config-->
+    const firebaseConfig = {
+        apiKey: "AIzaSyD1u36i97kjNAXK1tTsml6_HpFBYnUBdBQ",
+        authDomain: "test-notifications-f6476.firebaseapp.com",
+        projectId: "test-notifications-f6476",
+        storageBucket: "test-notifications-f6476.firebasestorage.app",
+        messagingSenderId: "414101353176",
+        appId: "1:414101353176:web:a9c93048fb00ccfd429dad"      
+    };
+    
+      firebase.initializeApp(firebaseConfig);
+      </script>
+    <script src="main.dart.js" type="application/javascript"></script>
+    <script>
+      if ("serviceWorker" in navigator) {
+          window.addEventListener("load", function () {
+            navigator.serviceWorker.register("/firebase-messaging-sw.js");
+          });
+        }
+        </script>   
 </body>
 </html>
