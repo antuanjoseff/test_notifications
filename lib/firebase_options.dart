@@ -25,15 +25,9 @@ class DefaultFirebaseOptions {
       case TargetPlatform.iOS:
         return ios;
       case TargetPlatform.macOS:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for macos - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
+        return macos;
       case TargetPlatform.windows:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for windows - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
+        return windows;
       case TargetPlatform.linux:
         throw UnsupportedError(
           'DefaultFirebaseOptions have not been configured for linux - '
@@ -71,4 +65,23 @@ class DefaultFirebaseOptions {
     storageBucket: 'test-notifications-f6476.firebasestorage.app',
     iosBundleId: 'com.example.testNotifications',
   );
+
+  static const FirebaseOptions macos = FirebaseOptions(
+    apiKey: 'AIzaSyBpDHWm_RArcJrpLojmiVAvniM6pnXY_Co',
+    appId: '1:414101353176:ios:ddfe11472a818115429dad',
+    messagingSenderId: '414101353176',
+    projectId: 'test-notifications-f6476',
+    storageBucket: 'test-notifications-f6476.firebasestorage.app',
+    iosBundleId: 'com.example.testNotifications',
+  );
+
+  static const FirebaseOptions windows = FirebaseOptions(
+    apiKey: 'AIzaSyD1u36i97kjNAXK1tTsml6_HpFBYnUBdBQ',
+    appId: '1:414101353176:web:e05efe9ca6d1503b429dad',
+    messagingSenderId: '414101353176',
+    projectId: 'test-notifications-f6476',
+    authDomain: 'test-notifications-f6476.firebaseapp.com',
+    storageBucket: 'test-notifications-f6476.firebasestorage.app',
+  );
+
 }

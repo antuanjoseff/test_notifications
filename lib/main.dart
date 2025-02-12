@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:test_notifications/config/router.dart';
@@ -18,12 +19,22 @@ Future _firebaseBackgroundMessage(RemoteMessage message) async {
   }
 }
 
-// void main() async {
-//   WidgetsFlutterBinding.ensureInitialized();
-//   await PushNotificationsService.intializeApp();
+// to handle notfifications on foreground on web platform
+void showNotification({required String title, required String body}) {
+  showDialog(
+    context: navigatiorKey.currentContext!,
+    builder: (context) =>
+        AlertDialog(title: Text(title), content: Text(body), actions: [
+      TextButton(
+        onPressed: () {
+          Navigator.pop(context);
+        },
+        child: Text('OK'),
+      )
+    ]),
+  );
+}
 
-//   runApp(MyApp());
-// }
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -40,8 +51,10 @@ void main() async {
   // initialize firebase messaging
   await PushNotifications.initialize();
 
-  // initialize local notifications
-  await PushNotifications.localNotiInit();
+  if (!kIsWeb) {
+    // initialize local notifications
+    await PushNotifications.localNotiInit();
+  }
 
   // Listen to background notifications
   FirebaseMessaging.onBackgroundMessage(_firebaseBackgroundMessage);
@@ -61,8 +74,14 @@ void main() async {
     debugPrint(
         'Got a messsage in foreground. Notification is null = ${message.notification == null}');
     if (message.notification != null) {
+      if (kIsWeb) {
+        showNotification(
+            title: message.notification!.title!,
+            body: message.notification!.body!);
+      } else {
+        PushNotifications.showSimpleNotification(message);
+      }
       // router.pushNamed('message');
-      PushNotifications.showSimpleNotification(message);
     }
   });
 
@@ -84,6 +103,7 @@ void main() async {
 }
 
 class MyApp extends StatelessWidget {
+  bool requestPermission = true;
   @override
   Widget build(BuildContext context) {
     // return MaterialApp(
