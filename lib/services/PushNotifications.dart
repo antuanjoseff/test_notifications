@@ -1,4 +1,5 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import '../config/config.dart';
@@ -18,23 +19,57 @@ class PushNotifications {
 
   // Request notifications permissions
   static Future initialize() async {
-    // NotificationSettings settings = await _firebaseMessaging.requestPermission(
-    //     alert: true,
-    //     announcement: true,
-    //     badge: true,
-    //     carPlay: false,
-    //     criticalAlert: true,
-    //     provisional: false,
-    //     sound: true);
+    NotificationSettings settings = await _firebaseMessaging.requestPermission(
+        alert: true,
+        announcement: true,
+        badge: true,
+        carPlay: false,
+        criticalAlert: true,
+        provisional: false,
+        sound: true);
 
-    NotificationSettings settings =
-        await _firebaseMessaging.requestPermission(provisional: true);
+    debugPrint('${settings.authorizationStatus}');
+    // String token = await getFCMToken();
+    // NotificationSettings settings =
+    //     await _firebaseMessaging.requestPermission(provisional: true);
 
     debugPrint('User granted permission: ${settings.authorizationStatus}');
+    debugPrint('token: $token');
 
     // Get device token
-    final token = await _firebaseMessaging.getToken();
-    debugPrint("Device token $token");
+    if (kIsWeb) {
+      final token = await _firebaseMessaging.getToken(
+          vapidKey:
+              'BPGQYfo5HmjnXOHSLXbpAlCXOswPWPWl3Guy34NRg7LzvZXzTsYfKvlLsgrBK3URH_R3JG_66V03LdcnuzSqTFg');
+      debugPrint("Device on web token $token");
+    } else {
+      final token = await _firebaseMessaging.getToken();
+      debugPrint("Device on cel token $token");
+    }
+  }
+
+  static Future getFCMToken({int maxRetires = 3}) async {
+    try {
+      String? token;
+      if (kIsWeb) {
+        token = await _firebaseMessaging.getToken(
+            vapidKey:
+                'BPGQYfo5HmjnXOHSLXbpAlCXOswPWPWl3Guy34NRg7LzvZXzTsYfKvlLsgrBK3URH_R3JG_66V03LdcnuzSqTFg');
+        debugPrint("Device on web token $token");
+      } else {
+        token = await _firebaseMessaging.getToken();
+        debugPrint("Device on cel token $token");
+      }
+      return token;
+    } catch (e) {
+      debugPrint("failed to get device token");
+      if (maxRetires > 0) {
+        await Future.delayed(Duration(seconds: 10));
+        return getFCMToken(maxRetires: maxRetires - 1);
+      } else {
+        return null;
+      }
+    }
   }
 
   // initialize local notifications
