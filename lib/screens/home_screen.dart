@@ -1,5 +1,7 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:test_notifications/screens/message_screen.dart';
+import 'package:test_notifications/services/PushNotifications.dart';
 import '../config/config.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -12,6 +14,19 @@ class HomeScreen extends StatelessWidget {
         body: Center(
           child: Column(
             children: [
+              kIsWeb
+                  ? Column(
+                      children: [
+                        Text('Platform is web. So...'),
+                        ElevatedButton(
+                          onPressed: () async {
+                            await PushNotifications.initialize();
+                          },
+                          child: Text('Accept notifications!'),
+                        )
+                      ],
+                    )
+                  : Container(),
               Text('test notifications home screen'),
               ElevatedButton(
                 onPressed: () {

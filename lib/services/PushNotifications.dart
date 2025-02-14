@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import '../config/config.dart';
+import '../config/secure_storage.dart';
 
 class PushNotifications {
   static final _firebaseMessaging = FirebaseMessaging.instance;
@@ -46,6 +47,7 @@ class PushNotifications {
       final token = await _firebaseMessaging.getToken();
       debugPrint("Device on cel token $token");
     }
+    await storage.setTokenToStorage(token);
   }
 
   static Future getFCMToken({int maxRetires = 3}) async {
