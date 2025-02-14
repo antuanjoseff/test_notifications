@@ -4,7 +4,10 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:test_notifications/config/router.dart';
+import 'package:test_notifications/models/User.dart';
+import 'package:test_notifications/models/UserCubit.dart';
 import 'package:test_notifications/services/PushNotifications.dart';
 import './config/secure_storage.dart';
 
@@ -101,21 +104,34 @@ void main() async {
       });
     }
   }
-  runApp(MyApp());
+  runApp(BlocProviders());
+}
+
+class BlocProviders extends StatefulWidget {
+  const BlocProviders({super.key});
+
+  @override
+  State<BlocProviders> createState() => _BlocProvidersState();
+}
+
+class _BlocProvidersState extends State<BlocProviders> {
+  @override
+  Widget build(BuildContext context) {
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(
+          create: (context) => UserCubit(User()),
+        )
+      ],
+      child: MyApp(),
+    );
+  }
 }
 
 class MyApp extends StatelessWidget {
   bool requestPermission = true;
   @override
   Widget build(BuildContext context) {
-    // return MaterialApp(
-    //   title: 'My Title',
-    //   navigatorKey: navigatiorKey,
-    //   routes: {
-    //     '/': (_) => HomeScreen(),
-    //     '/message': (_) => MessageScreen(),
-    //   },
-    // );
     return MaterialApp.router(
       debugShowCheckedModeBanner: false,
       routerConfig: router,

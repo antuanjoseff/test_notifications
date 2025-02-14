@@ -1,4 +1,8 @@
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:test_notifications/config/router.dart';
+import 'package:test_notifications/models/UserCubit.dart';
 
 AndroidOptions _getAndroidOptions() => const AndroidOptions(
       encryptedSharedPreferences: true,
@@ -15,9 +19,11 @@ Future<void> setUsernameToStorage(username) async {
 }
 
 Future<String?> getTokenFromStorage() async {
+  debugPrint('get token from storage');
   return await storage.read(key: 'token');
 }
 
 Future<void> setTokenToStorage(token) async {
+  debugPrint('SET token from storage');
   await storage.write(key: 'token', value: token);
 }
