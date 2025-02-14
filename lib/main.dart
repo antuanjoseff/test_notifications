@@ -14,8 +14,7 @@ import './config/secure_storage.dart';
 // import 'package:test_notifications/services/push_notifications_service.dart';
 import 'firebase_options.dart';
 
-// final navigatiorKey = GlobalKey<NavigatorState>();
-// function to listen to background changes
+String initRouterPath = '/';
 
 @pragma('vm:entry-point')
 Future _firebaseBackgroundMessage(RemoteMessage message) async {
@@ -42,6 +41,13 @@ void showNotification({required String title, required String body}) {
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  String? token = await getTokenFromStorage();
+
+  debugPrint('TOKEN: $token');
+  if (token != null) {
+    initRouterPath = '/message';
+  }
+  debugPrint('INITIAL ROUTE $initRouterPath');
 
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
@@ -56,54 +62,51 @@ void main() async {
   if (!kIsWeb) {
     // initialize firebase messaging
     await PushNotifications.initialize();
-
-    // initialize local notifications
-    await PushNotifications.localNotiInit();
-
-    // Listen to background notifications
-
-    FirebaseMessaging.onBackgroundMessage(_firebaseBackgroundMessage);
-
-    // on background notification tap
-    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
-      if (message.notification != null) {
-        debugPrint('Message: Notification tapped');
-        router.pushNamed('message');
-        // navigatiorKey.currentState!.pushNamed('/message', arguments: message);
-      }
-    });
-
-    // to handle foreground notifications
-    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-      String payloadData = jsonEncode(message.data);
-      debugPrint(
-          'Got a messsage in foreground. Notification is null = ${message.notification == null}');
-      if (message.notification != null) {
-        if (kIsWeb) {
-          showNotification(
-              title: message.notification!.title!,
-              body: message.notification!.body!);
-        } else {
-          PushNotifications.showSimpleNotification(message);
-        }
-        // router.pushNamed('message');
-      }
-    });
-
-    // to handle in terminated state
-    final RemoteMessage? message =
-        await FirebaseMessaging.instance.getInitialMessage();
-
-    if (message != null) {
-      debugPrint('Message: Launched from terminated state');
-      Future.delayed(Duration(seconds: 1), () {
-        router.pushNamed('message');
-        // navigatiorKey.currentState
-        //     ?.push(MaterialPageRoute(builder: (context) => MessageScreen()));
-        // navigatiorKey.currentState!.pushNamed('/message', arguments: message);
-      });
-    }
   }
+  // initialize local notifications
+  await PushNotifications.localNotiInit();
+
+  // Listen to background notifications
+
+  FirebaseMessaging.onBackgroundMessage(_firebaseBackgroundMessage);
+
+  // on background notification tap
+  FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
+    if (message.notification != null) {
+      debugPrint('Message: Notification tapped');
+      router.pushNamed('message');
+      // navigatiorKey.currentState!.pushNamed('/message', arguments: message);
+    }
+  });
+
+  // to handle foreground notifications
+  FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+    String payloadData = jsonEncode(message.data);
+    debugPrint(
+        'Got a messsage in foreground. Notification is null = ${message.notification == null}');
+    if (message.notification != null) {
+      if (kIsWeb) {
+        showNotification(
+            title: message.notification!.title!,
+            body: message.notification!.body!);
+      } else {
+        PushNotifications.showSimpleNotification(message);
+      }
+      // router.pushNamed('message');
+    }
+  });
+
+  // to handle in terminated state
+  final RemoteMessage? message =
+      await FirebaseMessaging.instance.getInitialMessage();
+
+  if (message != null) {
+    debugPrint('Message: Launched from terminated state');
+    Future.delayed(Duration(seconds: 1), () {
+      router.pushNamed('message');
+    });
+  }
+
   runApp(BlocProviders());
 }
 

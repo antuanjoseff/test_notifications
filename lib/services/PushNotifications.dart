@@ -19,7 +19,7 @@ class PushNotifications {
   );
 
   // Request notifications permissions
-  static Future initialize() async {
+  static Future<AuthorizationStatus> initialize() async {
     debugPrint('inside initialize notifications');
     NotificationSettings settings = await _firebaseMessaging.requestPermission(
         alert: true,
@@ -37,20 +37,22 @@ class PushNotifications {
 
     debugPrint('User granted permission: ${settings.authorizationStatus}');
 
-    // Get device token
-    String? token;
-    if (kIsWeb) {
-      token = await _firebaseMessaging.getToken(
-          vapidKey:
-              'BPGQYfo5HmjnXOHSLXbpAlCXOswPWPWl3Guy34NRg7LzvZXzTsYfKvlLsgrBK3URH_R3JG_66V03LdcnuzSqTFg');
-      debugPrint("Device on web token $token");
-    } else {
-      token = await _firebaseMessaging.getToken();
-      debugPrint("Device on cel token $token");
+    if (settings.authorizationStatus == AuthorizationStatus.authorized) {
+      // Get device token
+      String? token;
+      if (kIsWeb) {
+        token = await _firebaseMessaging.getToken(
+            vapidKey:
+                'BPGQYfo5HmjnXOHSLXbpAlCXOswPWPWl3Guy34NRg7LzvZXzTsYfKvlLsgrBK3URH_R3JG_66V03LdcnuzSqTFg');
+        debugPrint("Device on web token $token");
+      } else {
+        token = await _firebaseMessaging.getToken();
+        debugPrint("Device on cel token $token");
+      }
+      // Storage token
+      await setTokenToStorage(token);
     }
-
-    // Storage token
-    await setTokenToStorage(token);
+    return settings.authorizationStatus;
   }
 
   static Future getFCMToken({int maxRetires = 3}) async {

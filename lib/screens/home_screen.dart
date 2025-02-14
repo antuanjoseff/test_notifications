@@ -1,3 +1,4 @@
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -52,12 +53,18 @@ class _HomeScreenState extends State<HomeScreen> {
                           Text('Platform is web. So...'),
                           ElevatedButton(
                             onPressed: () async {
-                              await PushNotifications.initialize();
+                              AuthorizationStatus authorized =
+                                  await PushNotifications.initialize();
                               // Get token from storage and update cubit
-                              String newToken =
-                                  await getTokenFromStorage() ?? '';
-                              userCubit.setUser(User(
-                                  username: 'u8839485', token: '$newToken'));
+                              if (authorized ==
+                                  AuthorizationStatus.authorized) {
+                                String newToken =
+                                    await getTokenFromStorage() ?? '';
+                                userCubit.setUser(User(
+                                    username: 'u8839485', token: '$newToken'));
+                              } else {
+                                debugPrint('notifications not authorized');
+                              }
                             },
                             child: Text('Accept notifications!'),
                           )
@@ -68,8 +75,6 @@ class _HomeScreenState extends State<HomeScreen> {
                 ElevatedButton(
                   onPressed: () {
                     router.pushNamed('message');
-                    // navigatiorKey.currentState?.push(
-                    //     MaterialPageRoute(builder: (context) => MessageScreen()));
                   },
                   child: Text('Go message!!!'),
                 )

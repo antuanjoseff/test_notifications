@@ -42,8 +42,6 @@ class _MessageScreenState extends State<MessageScreen> {
             ElevatedButton(
               onPressed: () {
                 router.pushNamed('home');
-                // navigatiorKey.currentState?.push(
-                //     MaterialPageRoute(builder: (context) => MessageScreen()));
               },
               child: Text('Go home!!!'),
             ),
