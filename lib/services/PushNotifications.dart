@@ -1,9 +1,18 @@
+import 'dart:convert';
+
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import '../config/config.dart';
 import '../config/secure_storage.dart';
+
+@pragma('vm:entry-point')
+Future _firebaseBackgroundMessage(RemoteMessage message) async {
+  if (message.notification != null) {
+    debugPrint('Some notification received in background....');
+  }
+}
 
 class PushNotifications {
   static final _firebaseMessaging = FirebaseMessaging.instance;
@@ -138,6 +147,57 @@ class PushNotifications {
               // other properties...
             ),
           ));
+    }
+  }
+
+  static void init() async {
+    if (!kIsWeb) {
+      // initialize firebase messaging
+      await PushNotifications.initialize();
+    }
+    // initialize local notifications
+    await PushNotifications.localNotiInit();
+
+    // Listen to background notifications
+
+    FirebaseMessaging.onBackgroundMessage(_firebaseBackgroundMessage);
+
+    // on background notification tap
+    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
+      if (message.notification != null) {
+        debugPrint('Message: Notification tapped');
+        router.pushNamed('message');
+        // navigatiorKey.currentState!.pushNamed('/message', arguments: message);
+      }
+    });
+
+    // to handle foreground notifications
+    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+      String payloadData = jsonEncode(message.data);
+      debugPrint(
+          'Got a messsage in foreground. Notification is null = ${message.notification == null}');
+      if (message.notification != null) {
+        if (kIsWeb) {
+          debugPrint('message from foreground');
+          // showNotification(
+          //     title: message.notification!.title!,
+          //     body: message.notification!.body!);
+        } else {
+          PushNotifications.showSimpleNotification(message);
+        }
+        // router.pushNamed('message');
+      }
+    });
+
+    // to handle in terminated state
+    final RemoteMessage? message =
+        await FirebaseMessaging.instance.getInitialMessage();
+
+    if (message != null) {
+      debugPrint('Message: Launched from terminated state');
+      Future.delayed(Duration(seconds: 1), () {
+        router.pushNamed('message');
+      });
     }
   }
 }
