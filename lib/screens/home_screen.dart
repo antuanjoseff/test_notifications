@@ -18,11 +18,17 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   String? token;
   late UserCubit userCubit;
+  List<String> allMessages = [];
 
   @override
   void initState() {
     // Check if token is in storage. If so, update cubit
     if (kIsWeb) {
+      // getMessageFromStorage('u8839485').then((value) {
+      //   debugPrint('Allmessages from storage $allMessages');
+      //   allMessages = value;
+      //   setState(() {});
+      // });
       PushNotifications.getFCMToken().then((value) {
         token = value;
         userCubit.setUser(User(username: 'u8839485', token: token));
@@ -43,7 +49,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    List<String> allMessages = [];
     String? token;
     userCubit = context.watch<UserCubit>();
     Stream<String> messagesStream = PushNotifications.messageStream;
@@ -106,6 +111,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             return const Text('Error');
                           } else {
                             allMessages.add(snapshot.data.toString());
+                            setMessagesToStorage('u8839485', allMessages);
                             // return Text('${snapshot.data.toString()}');
                             return ListView.builder(
                                 controller: scrollController,

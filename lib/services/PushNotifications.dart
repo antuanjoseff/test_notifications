@@ -7,11 +7,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import '../config/config.dart';
 import '../config/secure_storage.dart';
+import '../config/config.dart';
 
 @pragma('vm:entry-point')
 Future _firebaseBackgroundMessage(RemoteMessage message) async {
   if (message.notification != null) {
-    debugPrint('Some notification received in background....');
+    debugPrint('add element to stream!');
+    PushNotifications.messageController
+        .add(message.notification?.body ?? 'no-title');
+
+    List<String> allMessages = await getMessageFromStorage('u8839485');
+    debugPrint('all messages $allMessages');
+    allMessages.add(message.notification?.title ?? 'no-title');
+    await setMessagesToStorage('u8839485', allMessages);
   }
 }
 
@@ -164,10 +172,6 @@ class PushNotifications {
     // initialize local notifications
     await PushNotifications.localNotiInit();
 
-    // Listen to background notifications
-
-    FirebaseMessaging.onBackgroundMessage(_firebaseBackgroundMessage);
-
     // on background notification tap
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
       if (message.notification != null) {
@@ -194,6 +198,9 @@ class PushNotifications {
         // router.pushNamed('message');
       }
     });
+
+    //background notifications
+    FirebaseMessaging.onBackgroundMessage(_firebaseBackgroundMessage);
 
     // to handle in terminated state
     final RemoteMessage? message =
