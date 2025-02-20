@@ -54,6 +54,10 @@ void main() async {
 
   PushNotifications.init();
 
+  PushNotifications.messageStream.listen((message) {
+    debugPrint('Notificacion received from stream ${message}');
+  });
+
   runApp(BlocProviders());
 }
 

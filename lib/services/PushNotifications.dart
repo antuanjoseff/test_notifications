@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -17,6 +18,11 @@ Future _firebaseBackgroundMessage(RemoteMessage message) async {
 class PushNotifications {
   static final _firebaseMessaging = FirebaseMessaging.instance;
   static String? token;
+
+  static StreamController<String> messageController =
+      StreamController.broadcast();
+
+  static Stream<String> get messageStream => messageController.stream;
 
   static final FlutterLocalNotificationsPlugin
       _flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
@@ -173,7 +179,7 @@ class PushNotifications {
 
     // to handle foreground notifications
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-      String payloadData = jsonEncode(message.data);
+      messageController.add(message.notification?.title ?? 'no-title');
       debugPrint(
           'Got a messsage in foreground. Notification is null = ${message.notification == null}');
       if (message.notification != null) {
@@ -199,5 +205,9 @@ class PushNotifications {
         router.pushNamed('message');
       });
     }
+  }
+
+  static closeStreams() {
+    messageController.close();
   }
 }
