@@ -29,6 +29,7 @@ environment:
 # versions available, run `flutter pub outdated`.
 dependencies:
   fluttertoast:
+  url_launcher:
   firebase_core:
   flutter_bloc:
   firebase_messaging:

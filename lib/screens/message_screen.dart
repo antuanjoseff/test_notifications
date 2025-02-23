@@ -31,7 +31,7 @@ class _MessageScreenState extends State<MessageScreen> {
     }
 
     return Scaffold(
-      appBar: AppBar(title: Text('Message screen')),
+      appBar: AppBar(title: Text('Message')),
       body: Center(
         child: Column(
           children: [
@@ -41,7 +41,7 @@ class _MessageScreenState extends State<MessageScreen> {
             ),
             ElevatedButton(
               onPressed: () {
-                router.pushNamed('home');
+                router.pushNamed('login');
               },
               child: Text('Go home!!!'),
             ),

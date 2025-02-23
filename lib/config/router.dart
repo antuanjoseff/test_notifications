@@ -9,14 +9,14 @@ final navigatiorKey = GlobalKey<NavigatorState>();
 
 final router = GoRouter(
   navigatorKey: navigatiorKey,
-  initialLocation: initRouterPath,
+  // initialLocation: initRouterPath,
   routes: [
     GoRoute(
       name:
-          'home', // Optional, add name to your routes. Allows you navigate by name instead of path
+          'login', // Optional, add name to your routes. Allows you navigate by name instead of path
       path: '/',
       builder: (context, state) {
-        return HomeScreen();
+        return LoginScreen();
       },
     ),
     GoRoute(
@@ -25,14 +25,16 @@ final router = GoRouter(
       builder: (context, state) => MessageScreen(),
     ),
     GoRoute(
-      name: 'message-user',
-      path: '/message/:userId',
+      name: 'chatList-v2',
+      path: '/:userId/:token',
       builder: (context, state) {
         final userId =
             state.pathParameters["userId"]!; // Get "id" param from URL
-
+        final token = state.pathParameters["token"]!; // Get "id" param from URL
+        debugPrint('userID $userId');
+        debugPrint('userToken $token');
         setUsernameToStorage(userId);
-        return HomeScreen();
+        return ChatListScreen(token: token);
       },
     ),
   ],

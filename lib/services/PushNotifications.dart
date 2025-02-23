@@ -82,6 +82,7 @@ class PushNotifications {
     try {
       String? token;
       if (kIsWeb) {
+        debugPrint('now call getToken with validKey');
         token = await _firebaseMessaging.getToken(
             vapidKey:
                 'BPGQYfo5HmjnXOHSLXbpAlCXOswPWPWl3Guy34NRg7LzvZXzTsYfKvlLsgrBK3URH_R3JG_66V03LdcnuzSqTFg');
@@ -92,7 +93,7 @@ class PushNotifications {
       }
       return token;
     } catch (e) {
-      debugPrint("failed to get device token");
+      debugPrint("failed to get device token: $e");
       if (maxRetires > 0) {
         await Future.delayed(Duration(seconds: 10));
         return getFCMToken(maxRetires: maxRetires - 1);

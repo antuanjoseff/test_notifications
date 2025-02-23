@@ -8,7 +8,6 @@ import 'package:test_notifications/models/ChatList.dart';
 import 'package:test_notifications/models/User.dart';
 import 'package:test_notifications/models/UserCubit.dart';
 import 'package:test_notifications/models/Usuari.dart';
-import 'package:test_notifications/screens/message_screen.dart';
 import 'package:test_notifications/services/PushNotifications.dart';
 import '../config/config.dart';
 import 'package:http/http.dart' as http;
@@ -59,7 +58,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
       getChatList().then((response) {
         String utf8Response = Utf8Decoder().convert(response.bodyBytes);
 
-        List<ChatList> chatList = chatListFromJson(utf8Response);
+        chatList = chatListFromJson(utf8Response);
         setState(() {});
       });
     });
@@ -111,13 +110,14 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     Stream<String> messagesStream = PushNotifications.messageStream;
     ScrollController scrollController = ScrollController();
 
-    return BlocBuilder<UserCubit, User>(
+    return B
+    ocBuilder<UserCubit, User>(
         builder: (BuildContext context, User state) {
       return Scaffold(
           appBar: AppBar(
               title: SelectionArea(
                   child: Text(
-                      'Home. this is the token: ${userCubit.state.token}'))),
+                      'Home: ${userCubit.state.token}'))),
           body: Center(
             child: SizedBox(
               height: 400,
