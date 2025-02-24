@@ -1,6 +1,7 @@
 import 'package:go_router/go_router.dart';
 import 'package:flutter/material.dart';
 import 'package:test_notifications/main.dart';
+import 'package:test_notifications/screens/chat_page.dart';
 import './secure_storage.dart';
 import './config.dart';
 import '../screens/screens.dart';
@@ -28,13 +29,13 @@ final router = GoRouter(
       name: 'chatList-v2',
       path: '/:userId/:token',
       builder: (context, state) {
-        final userId =
+        final username =
             state.pathParameters["userId"]!; // Get "id" param from URL
         final token = state.pathParameters["token"]!; // Get "id" param from URL
-        debugPrint('userID $userId');
+        debugPrint('userID $username');
         debugPrint('userToken $token');
-        setUsernameToStorage(userId);
-        return ChatListScreen(token: token);
+        setUsernameToStorage(username);
+        return ChatPage(username: username, token: token);
       },
     ),
   ],

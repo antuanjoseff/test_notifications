@@ -83,9 +83,14 @@ class PushNotifications {
       String? token;
       if (kIsWeb) {
         debugPrint('now call getToken with validKey');
-        token = await _firebaseMessaging.getToken(
-            vapidKey:
-                'BPGQYfo5HmjnXOHSLXbpAlCXOswPWPWl3Guy34NRg7LzvZXzTsYfKvlLsgrBK3URH_R3JG_66V03LdcnuzSqTFg');
+        try {
+          token = await _firebaseMessaging.getToken(
+              vapidKey:
+                  'BPGQYfo5HmjnXOHSLXbpAlCXOswPWPWl3Guy34NRg7LzvZXzTsYfKvlLsgrBK3URH_R3JG_66V03LdcnuzSqTFg');
+        } catch (e) {
+          debugPrint('$e');
+        }
+
         debugPrint("Device on web token $token");
       } else {
         token = await _firebaseMessaging.getToken();

@@ -1,15 +1,13 @@
 import 'dart:convert';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:test_notifications/models/ChatList.dart';
-import 'package:test_notifications/models/User.dart';
 import 'package:test_notifications/models/UserCubit.dart';
 import 'package:test_notifications/models/Usuari.dart';
 import 'package:test_notifications/services/PushNotifications.dart';
+import 'package:web/web.dart' as web;
 import '../config/config.dart';
 import 'package:http/http.dart' as http;
 
@@ -53,6 +51,7 @@ class _ChatListScreenState extends State<ChatListScreen>
 
   @override
   void initState() {
+    // debugPrint('widget token: ${widget.token}');
     getUsers().then((response) async {
       String utf8Response = Utf8Decoder().convert(response.bodyBytes);
 
@@ -64,25 +63,26 @@ class _ChatListScreenState extends State<ChatListScreen>
 
       getChatList().then((response) {
         String utf8Response = Utf8Decoder().convert(response.bodyBytes);
-
+        debugPrint('chat list utf8 response $utf8Response');
         chatList = chatListFromJson(utf8Response);
         setState(() {});
       });
     });
 
     if (kIsWeb) {
+      debugPrint('WEB: ChatList before set user cubit');
       PushNotifications.getFCMToken().then((value) {
         token = value;
-        userCubit.setUser(User(username: 'u8839485', token: token));
+        debugPrint('token received: $token');
+        // userCubit.setUser(User(username: 'u8839485', token: token));
       });
     } else {
       getTokenFromStorage().then((value) {
-        debugPrint('UPDATE CUBIT FROM TOKEN IN STORAGE $value');
+        debugPrint('DEVICE: ChatList before set user cubit');
         setState(() {
           token = value;
-          userCubit.setUser(User(username: 'u8839485', token: token));
+          // userCubit.setUser(User(username: 'u8839485', token: token));
         });
-        // userCubit.setUser(User(username: 'u8839485', token: value));
       });
     }
 
@@ -111,11 +111,11 @@ class _ChatListScreenState extends State<ChatListScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(title: Text('Home')),
+        appBar: AppBar(title: Text('ChatList')),
         body: Center(
           child: Column(
             children: [
-              Text('From secure storage $username'),
+              // Text('From secure storage $username'),
               Text('Home Screen'),
               ElevatedButton(
                 onPressed: () {
@@ -142,7 +142,12 @@ class _ChatListScreenState extends State<ChatListScreen>
 }
 
 Future<void> _launchUrl() async {
-  if (!await launchUrl(_url, mode: LaunchMode.externalApplication)) {
-    throw Exception('Could not launch $_url');
+  if (kIsWeb) {
+    debugPrint('open in web same tab');
+    web.window.open(_url.toString(), '_self');
+  } else {
+    if (!await launchUrl(_url, mode: LaunchMode.externalApplication)) {
+      throw Exception('Could not launch $_url');
+    }
   }
 }

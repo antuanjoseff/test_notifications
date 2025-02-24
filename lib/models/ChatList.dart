@@ -1,3 +1,7 @@
+// To parse this JSON data, do
+//
+//     final chatList = chatListFromJson(jsonString);
+
 import 'dart:convert';
 
 List<ChatList> chatListFromJson(String str) =>
@@ -7,28 +11,28 @@ String chatListToJson(List<ChatList> data) =>
     json.encode(List<dynamic>.from(data.map((x) => x.toJson())));
 
 class ChatList {
-  int normSender;
-  int normReceiver;
+  int me;
+  int theOther;
   DateTime latestTimestamp;
   String lastMessage;
 
   ChatList({
-    required this.normSender,
-    required this.normReceiver,
+    required this.me,
+    required this.theOther,
     required this.latestTimestamp,
     required this.lastMessage,
   });
 
   factory ChatList.fromJson(Map<String, dynamic> json) => ChatList(
-        normSender: json["norm_sender"],
-        normReceiver: json["norm_receiver"],
+        me: json["me"],
+        theOther: json["the_other"],
         latestTimestamp: DateTime.parse(json["latest_timestamp"]),
         lastMessage: json["last_message"],
       );
 
   Map<String, dynamic> toJson() => {
-        "norm_sender": normSender,
-        "norm_receiver": normReceiver,
+        "me": me,
+        "the_other": theOther,
         "latest_timestamp": latestTimestamp.toIso8601String(),
         "last_message": lastMessage,
       };
