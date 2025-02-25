@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/models.dart';
+import '../services/services.dart';
 
 class SendTextMessage extends StatefulWidget {
   Usuari user;
@@ -34,7 +35,16 @@ class _SendTextMessageState extends State<SendTextMessage> {
           ),
           ElevatedButton(
               onPressed: () {
-                debugPrint('${widget.user.pk}   ${myController.text}');
+                if (myController.text.isEmpty) return;
+
+                mainStream.add(Result(
+                  body: myController.text,
+                  sender: 13,
+                  receiver: 7,
+                  timestamp: DateTime.now(),
+                ));
+                myController.text = '';
+                FocusScope.of(context).previousFocus();
               },
               child: Icon(Icons.send))
         ],

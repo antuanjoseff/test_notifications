@@ -1,5 +1,6 @@
+import 'dart:async';
 import 'dart:convert';
-
+import '../services/services.dart';
 import 'package:test_notifications/config/secure_storage.dart';
 
 import '../models/models.dart';
@@ -21,6 +22,9 @@ class ChatDetail extends StatefulWidget {
 class _ChatDetailState extends State<ChatDetail> {
   String? authtoken;
 
+  List<Result> allMessages = [];
+  ScrollController scrollController = ScrollController();
+
   Future getChatDetail() async {
     authtoken = authtoken ?? await getAuthtokenFromStorage();
     debugPrint('AUTHTOKEN $authtoken');
@@ -39,6 +43,29 @@ class _ChatDetailState extends State<ChatDetail> {
   }
 
   @override
+  void initState() {
+    mainStream.stream.listen((Result message) {
+      debugPrint('Notificacion received from stream ${message}');
+    });
+
+    getChatDetail().then((value) {
+      allMessages = value.results;
+      allMessages.forEach((m) {
+        debugPrint('${m.body}');
+        mainStream.add(m);
+      });
+      setState(() {});
+    });
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    mainStream.close();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -48,47 +75,48 @@ class _ChatDetailState extends State<ChatDetail> {
         children: [
           SingleChildScrollView(
             child: SizedBox(
-              height: MediaQuery.of(context).size.height - 140,
-              child: FutureBuilder(
-                future: getChatDetail(),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(
-                        child: SizedBox(
-                            width: 100,
-                            height: 100,
-                            child: CircularProgressIndicator()));
-                  } else {
-                    debugPrint('SNAPSHOT DATA : ${snapshot.data}');
-                    if (snapshot.connectionState == ConnectionState.done) {
-                      return Column(
-                        children: [
-                          Expanded(
-                            child: ListView.builder(
-                              itemCount: snapshot.data.results.length,
-                              itemBuilder: (context, index) {
-                                Result meg = snapshot.data.results[index];
+                height: MediaQuery.of(context).size.height - 140,
+                child: Column(
+                  children: [
+                    Expanded(
+                      child: StreamBuilder(
+                          stream: mainStream.stream,
+                          builder: (context, snapshot) {
+                            if (snapshot.data == null) return Container();
+                            Result message = snapshot.data!;
+                            allMessages.add(message);
 
-                                if (meg.sender == widget.me) {
-                                  return SendMessage(message: meg);
-                                } else {
-                                  return ReceivedMessage(message: meg);
-                                }
-
-                                // return Card(child: ListTile(title: Text(m.message)));
-                              },
-                            ),
-                          ),
-                        ],
-                      );
-                    } else {
-                      return Container();
-                    }
-                    ;
-                  }
-                },
-              ),
-            ),
+                            return ListView.builder(
+                                controller: scrollController,
+                                itemCount: allMessages.length +
+                                    1, //one extra element to do something
+                                itemBuilder: (context, index) {
+                                  if (index == allMessages.length) {
+                                    // if (index != 1) {
+                                    //   scrollController.animateTo(
+                                    //       scrollController
+                                    //           .position.maxScrollExtent,
+                                    //       duration: Duration(milliseconds: 300),
+                                    //       curve: Curves.easeOut);
+                                    // }
+                                    return Container(
+                                      height: 70,
+                                    );
+                                  } else {
+                                    if (allMessages[index].sender ==
+                                        widget.me) {
+                                      return SendMessage(
+                                          message: allMessages[index]);
+                                    } else {
+                                      return ReceivedMessage(
+                                          message: allMessages[index]);
+                                    }
+                                  }
+                                });
+                          }),
+                    ),
+                  ],
+                )),
           ),
           Expanded(child: SendTextMessage(user: widget.user)),
         ],

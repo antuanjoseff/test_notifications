@@ -1,13 +1,10 @@
 import 'dart:async';
-import 'dart:convert';
-
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import '../config/config.dart';
-import '../config/secure_storage.dart';
-import '../config/config.dart';
+import '../models/models.dart';
+import '../blocs/unread_notifications_cubit.dart';
 
 @pragma('vm:entry-point')
 Future _firebaseBackgroundMessage(RemoteMessage message) async {
@@ -22,6 +19,8 @@ Future _firebaseBackgroundMessage(RemoteMessage message) async {
     await setMessagesToStorage('u8839485', allMessages);
   }
 }
+
+final StreamController<Result> mainStream = StreamController.broadcast();
 
 class PushNotifications {
   static final _firebaseMessaging = FirebaseMessaging.instance;
@@ -194,10 +193,15 @@ class PushNotifications {
           'Got a messsage in foreground. Notification is null = ${message.notification == null}');
       if (message.notification != null) {
         if (kIsWeb) {
-          debugPrint('message from foreground');
-          // showNotification(
-          //     title: message.notification!.title!,
-          //     body: message.notification!.body!);
+          // debugPrint('message from foreground');
+          if (!mainStream.isClosed) {
+            mainStream.add(Result(
+              body: message.notification?.body ?? '',
+              sender: 13,
+              receiver: 7,
+              timestamp: DateTime.now(),
+            ));
+          } else {}
         } else {
           PushNotifications.showSimpleNotification(message);
         }

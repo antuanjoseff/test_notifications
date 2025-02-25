@@ -16,7 +16,7 @@ class _SendMessageState extends State<SendMessage> {
   void initState() {
     // TODO: implement initState
     message_time =
-        '${widget.message.timestamp.hour}:${widget.message.timestamp.minute}';
+        '${widget.message.timestamp.hour.toString().padLeft(2, '0')}:${widget.message.timestamp.minute.toString().padLeft(2, '0')}';
     super.initState();
   }
 

@@ -5,9 +5,11 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:test_notifications/blocs/unread_notifications_cubit.dart';
 import 'package:test_notifications/config/router.dart';
 import 'package:test_notifications/models/User.dart';
-import 'package:test_notifications/models/UserCubit.dart';
+import 'package:test_notifications/blocs/UserCubit.dart';
+import 'package:test_notifications/models/models.dart';
 import 'package:test_notifications/services/PushNotifications.dart';
 import './config/secure_storage.dart';
 
@@ -55,8 +57,26 @@ void main() async {
 
   PushNotifications.init();
 
-  PushNotifications.messageStream.listen((message) {
-    debugPrint('Notificacion received from stream ${message}');
+  mainStream.stream.listen((message) {
+    final unreadNotificationsCubit =
+        navigatiorKey.currentContext!.read<UnreadNotificationsCubit>();
+
+    int key = message.sender;
+    Map<int, int> unread = unreadNotificationsCubit.state.unread;
+
+    if (!unread.keys.contains(key)) {
+      unread[key] = 1;
+      debugPrint('1 new unread ${unread[key]}');
+    } else {
+      debugPrint('2 new unread ${unread[key]}');
+      int old = unread[key] ?? 0;
+      unread[key] = old + 1;
+      debugPrint('2.2 new unread ${unread[key]}');
+    }
+
+    debugPrint('3 new unread ${unread[key]}');
+    unreadNotificationsCubit
+        .setNotifications(UnreadNotificationsModel(unread: unread));
   });
 
   runApp(BlocProviders());
@@ -76,7 +96,11 @@ class _BlocProvidersState extends State<BlocProviders> {
       providers: [
         BlocProvider(
           create: (context) => UserCubit(User()),
-        )
+        ),
+        BlocProvider(
+          create: (context) =>
+              UnreadNotificationsCubit(UnreadNotificationsModel(unread: {})),
+        ),
       ],
       child: MyApp(),
     );

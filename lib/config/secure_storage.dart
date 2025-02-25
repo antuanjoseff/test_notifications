@@ -1,10 +1,7 @@
 import 'dart:convert';
 
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:test_notifications/config/router.dart';
-import 'package:test_notifications/models/UserCubit.dart';
 
 AndroidOptions _getAndroidOptions() => const AndroidOptions(
       encryptedSharedPreferences: true,
@@ -36,6 +33,7 @@ Future<String?> getDeviceTokenFromStorage() async {
 }
 
 Future<void> saveDeviceToken(devicetoken) async {
+  debugPrint('device token $devicetoken');
   await storage.write(key: 'devicetoken', value: devicetoken);
 }
 

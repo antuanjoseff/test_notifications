@@ -4,7 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:test_notifications/models/ChatList.dart';
-import 'package:test_notifications/models/UserCubit.dart';
+import 'package:test_notifications/blocs/UserCubit.dart';
 import 'package:test_notifications/models/Usuari.dart';
 import 'package:test_notifications/services/PushNotifications.dart';
 import 'package:web/web.dart' as web;
