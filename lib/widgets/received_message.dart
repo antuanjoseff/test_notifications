@@ -1,8 +1,8 @@
-import '../models/message.dart';
+import '../models/models.dart';
 import 'package:flutter/material.dart';
 
 class ReceivedMessage extends StatefulWidget {
-  Message message;
+  Result message;
   ReceivedMessage({super.key, required this.message});
 
   @override
@@ -16,7 +16,7 @@ class _ReceivedMessageState extends State<ReceivedMessage> {
   void initState() {
     // TODO: implement initState
     message_time =
-        '${widget.message.lastest_tmestamp.hour}:${widget.message.lastest_tmestamp.minute}';
+        '${widget.message.timestamp.hour}:${widget.message.timestamp.minute}';
     super.initState();
   }
 
@@ -39,7 +39,7 @@ class _ReceivedMessageState extends State<ReceivedMessage> {
                   top: 5,
                   bottom: 20,
                 ),
-                child: Text(widget.message.last_message),
+                child: Text(widget.message.body),
               ),
               Positioned(
                 bottom: 4,

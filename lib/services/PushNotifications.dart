@@ -73,7 +73,7 @@ class PushNotifications {
         debugPrint("Device on cel token $token");
       }
       // Storage token
-      await setTokenToStorage(token);
+      await saveAuthToken(token);
     }
     return settings.authorizationStatus;
   }

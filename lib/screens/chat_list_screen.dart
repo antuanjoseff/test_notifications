@@ -77,7 +77,7 @@ class _ChatListScreenState extends State<ChatListScreen>
         // userCubit.setUser(User(username: 'u8839485', token: token));
       });
     } else {
-      getTokenFromStorage().then((value) {
+      getAuthtokenFromStorage().then((value) {
         debugPrint('DEVICE: ChatList before set user cubit');
         setState(() {
           token = value;

@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:test_notifications/config/secure_storage.dart';
+
 import '../models/models.dart';
 import '../widgets/received_message.dart';
 import '../widgets/send_message.dart';
@@ -8,39 +10,32 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
 class ChatDetail extends StatefulWidget {
-  ChatDetail({super.key, required this.user, required this.token});
+  ChatDetail({super.key, required this.me, required this.user});
   Usuari user;
-  String token;
+  int me;
 
   @override
   State<ChatDetail> createState() => _ChatDetailState();
 }
 
 class _ChatDetailState extends State<ChatDetail> {
-  // List<Message> messages = [];
-
-  @override
-  void initState() {
-    getChatDetail().then((response) {
-      String utf8Response = Utf8Decoder().convert(response.bodyBytes);
-      debugPrint('CHAT DETAIL $utf8Response');
-      setState(() {});
-    });
-    super.initState();
-  }
+  String? authtoken;
 
   Future getChatDetail() async {
+    authtoken = authtoken ?? await getAuthtokenFromStorage();
+    debugPrint('AUTHTOKEN $authtoken');
+
     http.Response response = await http.get(
         Uri.parse(
-            'https://sigserver4.udg.edu/apps/carpool/api/chats/detail/${widget.user.pk}/'),
+            'https://sigserver4.udg.edu/apps/carpool/api/chats/detail/7/'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
-          'Authorization': 'Token ${widget.token}'
+          'Authorization': 'Token ${authtoken}'
         });
 
     String utf8Response = Utf8Decoder().convert(response.bodyBytes);
-    debugPrint(utf8Response);
-    return [];
+
+    return chatDetailFromJson(utf8Response);
   }
 
   @override
@@ -58,22 +53,27 @@ class _ChatDetailState extends State<ChatDetail> {
                 future: getChatDetail(),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
-                    return CircularProgressIndicator();
+                    return const Center(
+                        child: SizedBox(
+                            width: 100,
+                            height: 100,
+                            child: CircularProgressIndicator()));
                   } else {
+                    debugPrint('SNAPSHOT DATA : ${snapshot.data}');
                     if (snapshot.connectionState == ConnectionState.done) {
                       return Column(
                         children: [
                           Expanded(
                             child: ListView.builder(
-                              itemCount: 0,
+                              itemCount: snapshot.data.results.length,
                               itemBuilder: (context, index) {
-                                return Placeholder();
-                                // Message m = widget.messages[index];
-                                // if (m.me == 7) {
-                                //   return SendMessage(message: m);
-                                // } else {
-                                //   return ReceivedMessage(message: m);
-                                // }
+                                Result meg = snapshot.data.results[index];
+
+                                if (meg.sender == widget.me) {
+                                  return SendMessage(message: meg);
+                                } else {
+                                  return ReceivedMessage(message: meg);
+                                }
 
                                 // return Card(child: ListTile(title: Text(m.message)));
                               },
@@ -90,7 +90,7 @@ class _ChatDetailState extends State<ChatDetail> {
               ),
             ),
           ),
-          Expanded(child: SendTextMessage()),
+          Expanded(child: SendTextMessage(user: widget.user)),
         ],
       ),
     );

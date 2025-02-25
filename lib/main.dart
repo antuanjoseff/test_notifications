@@ -34,7 +34,7 @@ void showNotification({required String title, required String body}) {
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  String? token = await getTokenFromStorage();
+  String? token = await getAuthtokenFromStorage();
 
   debugPrint('TOKEN: $token');
   if (token != null) {
@@ -48,6 +48,7 @@ void main() async {
 
   FirebaseMessaging.instance.onTokenRefresh.listen((fcmToken) {
     debugPrint('new token $fcmToken');
+    saveDeviceToken(fcmToken);
   }).onError((err) {
     // Error getting token.
   });

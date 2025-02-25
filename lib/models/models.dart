@@ -1,3 +1,3 @@
 export 'Usuari.dart';
-export 'message.dart';
+export 'ChatDetailModel.dart';
 export 'ChatList.dart';

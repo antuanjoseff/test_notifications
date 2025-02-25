@@ -1,27 +1,23 @@
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
-import 'package:test_notifications/models/ChatList.dart';
 import 'package:test_notifications/services/PushNotifications.dart';
 import '../config/config.dart';
 import '../models/models.dart';
 import './chat_detail.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:web/web.dart' as web;
 
 class ChatPage extends StatefulWidget {
-  String username;
-  String token;
-  ChatPage({super.key, required this.username, required this.token});
+  ChatPage({super.key});
 
   @override
   State<ChatPage> createState() => _ChatPageState();
 }
 
 class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
-  @override
   String? username;
-  String? token;
+  String? authtoken;
+  String? devicetoken;
   Map<String, Usuari> usersMap = {};
   Map<String, dynamic> chatsMap = {};
   List<String> allMessages = [];
@@ -30,54 +26,54 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
   Usuari? me;
   List<ChatList> chatList = [];
 
+  @override
   void initState() {
-    if (kIsWeb) {
-      debugPrint('WEB: ChatList before set user cubit');
-      PushNotifications.getFCMToken().then((value) {
-        token = value;
-        debugPrint('token received: $token');
-        // userCubit.setUser(User(username: 'u8839485', token: token));
-      });
-    } else {
-      getTokenFromStorage().then((value) {
-        debugPrint('DEVICE: ChatList before set user cubit');
-        setState(() {
-          token = value;
-          // userCubit.setUser(User(username: 'u8839485', token: token));
-        });
-      });
-    }
-
     super.initState();
     WidgetsBinding.instance.addObserver(this);
   }
 
-  Future<http.Response> getUsers() {
+  Future<http.Response> getUsers() async {
+    username = username ?? await getUsernameFromStorage();
+    authtoken = authtoken ?? await getAuthtokenFromStorage();
+
     return http.get(
         Uri.parse('https://sigserver4.udg.edu/apps/carpool/api/user/'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
-          'Authorization': 'Token ${widget.token}'
+          'Authorization': 'Token $authtoken'
         });
   }
 
-  Future<http.Response> getChatList() {
+  Future<http.Response> getChatList() async {
+    username = username ?? await getUsernameFromStorage();
+    authtoken = authtoken ?? await getAuthtokenFromStorage();
+    debugPrint('AUTHTOKEN $authtoken');
+
     return http.get(
         Uri.parse('https://sigserver4.udg.edu/apps/carpool/api/chats/mine/'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
-          'Authorization': 'Token ${widget.token}'
+          'Authorization': 'Token ${authtoken}'
         });
   }
 
   Future<List<Usuari>> getUsersData() async {
+    username = username ?? await getUsernameFromStorage();
+    authtoken = authtoken ?? await getAuthtokenFromStorage();
+    debugPrint('AUTHTOKEN $authtoken');
+    // TODO
+    // if no username/authtoken then go to login page
+    if (username == null || authtoken == null) {
+      router.pushNamed('login');
+    }
+
     http.Response response = await getUsers();
     String utf8Response = Utf8Decoder().convert(response.bodyBytes);
     users = usuariFromJson(utf8Response);
 
     users.forEach((u) {
       usersMap[u.pk.toString()] = u;
-      if (u.username == widget.username) {
+      if (u.username == username) {
         me = u;
       }
     });
@@ -90,8 +86,6 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
     chatList = chatListFromJson(utf8Response);
 
     chatList.forEach((chat) {
-      debugPrint(
-          'key ${chat.theOther.toString()}    value: ${chat.lastMessage}');
       chatsMap[chat.theOther.toString()] = chat;
     });
 
@@ -114,16 +108,20 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
         future: Future.wait([getUsersData(), getChatsData()]),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return CircularProgressIndicator();
+            return const Center(
+                child: SizedBox(
+                    width: 100,
+                    height: 100,
+                    child: CircularProgressIndicator()));
           } else {
             if (snapshot.connectionState == ConnectionState.done) {
               return ListView.builder(
-                itemCount: snapshot.data![0].length,
+                itemCount: snapshot.data?[0].length ?? 0,
                 itemBuilder: (context, index) {
+                  String userIdx = users[index].pk.toString();
+
                   if (!chatsMap.keys.contains(users[index].pk.toString()))
                     return Container();
-
-                  String userIdx = users[index].pk.toString();
 
                   String lastMessage = chatsMap[userIdx].lastMessage;
 
@@ -139,7 +137,7 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
                         context,
                         MaterialPageRoute(
                           builder: (context) =>
-                              ChatDetail(user: users[index], token: token!),
+                              ChatDetail(user: users[index], me: me?.pk ?? -1),
                         ),
                       );
                     },

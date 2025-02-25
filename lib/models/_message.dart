@@ -20,16 +20,16 @@ class Message {
   });
 
   factory Message.fromJson(Map<String, dynamic> json) => Message(
-    me: json["sender"],
-    the_other: json["receiver"],
-    last_message: json["message"],
-    lastest_tmestamp: DateTime.parse(json["date"]),
-  );
+        me: json["sender"],
+        the_other: json["receiver"],
+        last_message: json["message"],
+        lastest_tmestamp: DateTime.parse(json["date"]),
+      );
 
   Map<String, dynamic> toJson() => {
-    "sender": me,
-    "receiver": the_other,
-    "message": last_message,
-    "date": lastest_tmestamp.toIso8601String(),
-  };
+        "sender": me,
+        "receiver": the_other,
+        "message": last_message,
+        "date": lastest_tmestamp.toIso8601String(),
+      };
 }

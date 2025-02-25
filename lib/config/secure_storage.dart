@@ -16,18 +16,27 @@ Future<String> getUsernameFromStorage() async {
   return await storage.read(key: 'username') ?? 'no-usename';
 }
 
-Future<void> setUsernameToStorage(username) async {
+Future<void> saveUsername(username) async {
+  debugPrint('SAVE USERNAME IN STORE');
   await storage.write(key: 'username', value: username);
 }
 
-Future<String?> getTokenFromStorage() async {
+Future<String?> getAuthtokenFromStorage() async {
   debugPrint('get token from storage');
-  return await storage.read(key: 'token');
+  return await storage.read(key: 'authtoken');
 }
 
-Future<void> setTokenToStorage(token) async {
-  debugPrint('SET token from storage');
-  await storage.write(key: 'token', value: token);
+Future<void> saveAuthToken(authtoken) async {
+  debugPrint('SAVE AUTHTOKEN IN STORE $authtoken');
+  await storage.write(key: 'authtoken', value: authtoken);
+}
+
+Future<String?> getDeviceTokenFromStorage() async {
+  return await storage.read(key: 'devicetoken');
+}
+
+Future<void> saveDeviceToken(devicetoken) async {
+  await storage.write(key: 'devicetoken', value: devicetoken);
 }
 
 Future<List<String>> getMessageFromStorage(user) async {
