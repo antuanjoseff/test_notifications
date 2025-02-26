@@ -1,5 +1,5 @@
 import 'dart:convert';
-
+import 'package:onmessage/onmessage.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -42,7 +42,6 @@ void main() async {
   if (token != null) {
     initRouterPath = '/message';
   }
-  debugPrint('INITIAL ROUTE $initRouterPath');
 
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
@@ -66,17 +65,34 @@ void main() async {
 
     if (!unread.keys.contains(key)) {
       unread[key] = 1;
-      debugPrint('1 new unread ${unread[key]}');
     } else {
-      debugPrint('2 new unread ${unread[key]}');
       int old = unread[key] ?? 0;
       unread[key] = old + 1;
-      debugPrint('2.2 new unread ${unread[key]}');
     }
 
-    debugPrint('3 new unread ${unread[key]}');
     unreadNotificationsCubit
         .setNotifications(UnreadNotificationsModel(unread: unread));
+  });
+
+  OnMessage.instance.stream.listen((MessageEvent event) {
+    debugPrint('${event.data.toString()}');
+    final unreadNotificationsCubit =
+        navigatiorKey.currentContext!.read<UnreadNotificationsCubit>();
+    // final data = jsonDecode(event.data.toString());
+    if (kIsWeb) {
+      int key = 13;
+      Map<int, int> unread = unreadNotificationsCubit.state.unread;
+
+      if (!unread.keys.contains(key)) {
+        unread[key] = 1;
+      } else {
+        int old = unread[key] ?? 0;
+        unread[key] = old + 1;
+      }
+
+      unreadNotificationsCubit
+          .setNotifications(UnreadNotificationsModel(unread: unread));
+    }
   });
 
   runApp(BlocProviders());

@@ -16,6 +16,9 @@ importScripts('https://www.gstatic.com/firebasejs/8.4.1/firebase-messaging.js');
 
   /*messaging.onMessage((payload) => {
   console.log('Message received. ', payload);*/
+
+  const channel = new BroadcastChannel('sw-messages');
+
   messaging.onBackgroundMessage(function(payload) {
     console.log('Received background message ', payload);
 
@@ -23,7 +26,12 @@ importScripts('https://www.gstatic.com/firebasejs/8.4.1/firebase-messaging.js');
     const notificationOptions = {
       body: payload.notification.body,
     };
+
+    channel.postMessage(
+      payload
+    );
+
     console.log('hoooooooooooola')
-    self.registration.showNotification(notificationTitle,
-      notificationOptions);
+    // self.registration.showNotification(notificationTitle,
+    //   notificationOptions);
   });
