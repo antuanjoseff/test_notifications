@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:test_notifications/blocs/unread_notifications_cubit.dart';
+import 'package:test_notifications/models/api.dart';
 import '../config/config.dart';
 import '../models/models.dart';
 import './chat_detail.dart';
@@ -34,42 +35,16 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
     WidgetsBinding.instance.addObserver(this);
   }
 
-  Future<http.Response> getUsers() async {
-    username = username ?? await getUsernameFromStorage();
-    authtoken = authtoken ?? await getAuthtokenFromStorage();
-
-    return http.get(
-        Uri.parse('https://sigserver4.udg.edu/apps/carpool/api/user/'),
-        headers: <String, String>{
-          'Content-Type': 'application/json; charset=UTF-8',
-          'Authorization': 'Token $authtoken'
-        });
-  }
-
-  Future<http.Response> getChatList() async {
-    username = username ?? await getUsernameFromStorage();
-    authtoken = authtoken ?? await getAuthtokenFromStorage();
-    debugPrint('AUTHTOKEN $authtoken');
-
-    return http.get(
-        Uri.parse('https://sigserver4.udg.edu/apps/carpool/api/chats/mine/'),
-        headers: <String, String>{
-          'Content-Type': 'application/json; charset=UTF-8',
-          'Authorization': 'Token ${authtoken}'
-        });
-  }
-
   Future<List<Usuari>> getUsersData() async {
     username = username ?? await getUsernameFromStorage();
     authtoken = authtoken ?? await getAuthtokenFromStorage();
-    debugPrint('AUTHTOKEN $authtoken');
-    // TODO
+
     // if no username/authtoken then go to login page
     if (username == null || authtoken == null) {
       router.pushNamed('login');
     }
 
-    http.Response response = await getUsers();
+    http.Response response = await API(authtoken: authtoken!).getUsers();
     String utf8Response = Utf8Decoder().convert(response.bodyBytes);
     users = usuariFromJson(utf8Response);
 
@@ -83,7 +58,9 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
   }
 
   Future<List<ChatList>> getChatsData() async {
-    http.Response response = await getChatList();
+    authtoken = authtoken ?? await getAuthtokenFromStorage();
+    http.Response response =
+        await API(authtoken: authtoken!).getUserChatsList();
     String utf8Response = Utf8Decoder().convert(response.bodyBytes);
     chatList = chatListFromJson(utf8Response);
 

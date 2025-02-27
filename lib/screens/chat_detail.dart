@@ -1,5 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:test_notifications/models/api.dart';
+
 import '../services/services.dart';
 import 'package:test_notifications/config/secure_storage.dart';
 
@@ -29,13 +31,9 @@ class _ChatDetailState extends State<ChatDetail> {
     authtoken = authtoken ?? await getAuthtokenFromStorage();
     debugPrint('AUTHTOKEN $authtoken');
 
-    http.Response response = await http.get(
-        Uri.parse(
-            'https://sigserver4.udg.edu/apps/carpool/api/chats/detail/7/'),
-        headers: <String, String>{
-          'Content-Type': 'application/json; charset=UTF-8',
-          'Authorization': 'Token ${authtoken}'
-        });
+    int userid = 7;
+    http.Response response =
+        await API(authtoken: authtoken!).getChatDetail(userid);
 
     String utf8Response = Utf8Decoder().convert(response.bodyBytes);
 

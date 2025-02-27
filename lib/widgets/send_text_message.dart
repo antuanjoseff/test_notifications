@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:test_notifications/config/secure_storage.dart';
+import 'package:test_notifications/models/api.dart';
 import '../models/models.dart';
 import '../services/services.dart';
+import 'package:http/http.dart' as http;
 
 class SendTextMessage extends StatefulWidget {
   Usuari user;
@@ -37,6 +40,7 @@ class _SendTextMessageState extends State<SendTextMessage> {
               onPressed: () {
                 if (myController.text.isEmpty) return;
 
+                sendNotification(myController.text, 7);
                 mainStream.add(Result(
                   body: myController.text,
                   sender: 13,
@@ -51,4 +55,11 @@ class _SendTextMessageState extends State<SendTextMessage> {
       ),
     );
   }
+}
+
+void sendNotification(message, sender) async {
+  debugPrint('send notification');
+  String? authtoken = await getAuthtokenFromStorage();
+  http.Response response =
+      await API(authtoken: authtoken!).sendNotification(message, sender);
 }
