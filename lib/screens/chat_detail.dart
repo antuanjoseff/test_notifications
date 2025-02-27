@@ -11,6 +11,7 @@ import '../widgets/send_message.dart';
 import '../widgets/send_text_message.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:async/async.dart' show StreamGroup;
 
 class ChatDetail extends StatefulWidget {
   ChatDetail({super.key, required this.me, required this.user});
@@ -26,6 +27,7 @@ class _ChatDetailState extends State<ChatDetail> {
 
   List<Result> allMessages = [];
   ScrollController scrollController = ScrollController();
+  final StreamController<Result> fakeStream = StreamController.broadcast();
 
   Future getChatDetail() async {
     authtoken = authtoken ?? await getAuthtokenFromStorage();
@@ -42,15 +44,15 @@ class _ChatDetailState extends State<ChatDetail> {
 
   @override
   void initState() {
-    mainStream.stream.listen((Result message) {
-      debugPrint('Notificacion received from stream ${message}');
+    mainStream.stream.listen((message) {
+      fakeStream.add(message);
     });
 
     getChatDetail().then((value) {
       allMessages = value.results;
       allMessages.forEach((m) {
         debugPrint('${m.body}');
-        mainStream.add(m);
+        fakeStream.add(m);
       });
       setState(() {});
     });
@@ -59,7 +61,6 @@ class _ChatDetailState extends State<ChatDetail> {
 
   @override
   void dispose() {
-    mainStream.close();
     super.dispose();
   }
 
@@ -78,10 +79,14 @@ class _ChatDetailState extends State<ChatDetail> {
                   children: [
                     Expanded(
                       child: StreamBuilder(
-                          stream: mainStream.stream,
+                          stream: StreamGroup.merge(
+                              [fakeStream.stream, mainStream.stream]),
                           builder: (context, snapshot) {
                             if (snapshot.data == null) return Container();
+
                             Result message = snapshot.data!;
+
+                            debugPrint('MESSAGE $message');
                             allMessages.add(message);
 
                             return ListView.builder(
