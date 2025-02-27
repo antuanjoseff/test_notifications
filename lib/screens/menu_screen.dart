@@ -1,7 +1,9 @@
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:test_notifications/config/router.dart';
 import 'package:test_notifications/config/secure_storage.dart';
+import 'package:test_notifications/models/api.dart';
 import 'package:test_notifications/screens/chat_page.dart';
 import 'package:test_notifications/services/PushNotifications.dart';
 import '../models/models.dart';
@@ -17,15 +19,18 @@ class MenuPage extends StatefulWidget {
 }
 
 class _MenuPageState extends State<MenuPage> {
+  bool dataReady = false;
   @override
   void initState() {
-    saveUsername(widget.username);
-    saveAuthToken(widget.authtoken);
-    if (kIsWeb) {
-      PushNotifications.getFCMToken().then((devicetoken) {
-        saveDeviceToken(devicetoken);
+    saveUsername(widget.username).then((_) {
+      debugPrint('widget username ${widget.username}');
+      saveAuthToken(widget.authtoken).then((_) {
+        debugPrint('widget authtoken ${widget.authtoken}');
+        dataReady = true;
+        setState(() {});
       });
-    }
+    });
+
     super.initState();
   }
 
@@ -35,6 +40,30 @@ class _MenuPageState extends State<MenuPage> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
+          kIsWeb
+              ? ElevatedButton(
+                  onPressed: !dataReady
+                      ? null
+                      : () async {
+                          AuthorizationStatus status =
+                              await PushNotifications.initialize();
+                          if (status == AuthorizationStatus.authorized) {
+                            String? devicetoken =
+                                await getDeviceTokenFromStorage();
+                            //TODO:API Register device
+                            if (devicetoken != null) {
+                              API(authtoken: widget.authtoken)
+                                  .registerDevice(devicetoken!);
+                            }
+                          }
+                        },
+                  child: !dataReady
+                      ? CircularProgressIndicator()
+                      : Text('Allow notifications'))
+              : Container(),
+          const SizedBox(
+            height: 20,
+          ),
           ElevatedButton(
               onPressed: () {
                 Navigator.push(
@@ -44,7 +73,7 @@ class _MenuPageState extends State<MenuPage> {
                       builder: (context) => ChatPage()),
                 );
               },
-              child: Text('Chats page'))
+              child: Text('Chats page')),
         ],
       ),
     );

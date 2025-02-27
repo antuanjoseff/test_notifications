@@ -42,7 +42,6 @@ class PushNotifications {
 
   // Request notifications permissions
   static Future<AuthorizationStatus> initialize() async {
-    debugPrint('inside initialize notifications');
     NotificationSettings settings = await _firebaseMessaging.requestPermission(
         alert: true,
         announcement: true,
@@ -51,11 +50,6 @@ class PushNotifications {
         criticalAlert: true,
         provisional: false,
         sound: true);
-
-    debugPrint('${settings.authorizationStatus}');
-    // String token = await getFCMToken();
-    // NotificationSettings settings =
-    //     await _firebaseMessaging.requestPermission(provisional: true);
 
     debugPrint('User granted permission: ${settings.authorizationStatus}');
 
@@ -72,7 +66,7 @@ class PushNotifications {
         debugPrint("Device on cel token $token");
       }
       // Storage token
-      await saveAuthToken(token);
+      await saveDeviceToken(token);
     }
     return settings.authorizationStatus;
   }
@@ -189,8 +183,6 @@ class PushNotifications {
     // to handle foreground notifications
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
       messageController.add(message.notification?.title ?? 'no-title');
-      debugPrint(
-          'Got a messsage in foreground. Notification is null = ${message.notification == null}');
       if (message.notification != null) {
         if (kIsWeb) {
           // debugPrint('message from foreground');

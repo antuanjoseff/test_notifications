@@ -33,7 +33,7 @@ Future<String?> getDeviceTokenFromStorage() async {
 }
 
 Future<void> saveDeviceToken(devicetoken) async {
-  debugPrint('device token $devicetoken');
+  debugPrint('SAVE DEVICE TOKEN $devicetoken');
   await storage.write(key: 'devicetoken', value: devicetoken);
 }
 

@@ -9,6 +9,7 @@ import 'package:test_notifications/blocs/unread_notifications_cubit.dart';
 import 'package:test_notifications/config/router.dart';
 import 'package:test_notifications/models/User.dart';
 import 'package:test_notifications/blocs/UserCubit.dart';
+import 'package:test_notifications/models/api.dart';
 import 'package:test_notifications/models/models.dart';
 import 'package:test_notifications/services/PushNotifications.dart';
 import './config/secure_storage.dart';
@@ -47,9 +48,13 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
-  FirebaseMessaging.instance.onTokenRefresh.listen((fcmToken) {
-    debugPrint('new token $fcmToken');
-    saveDeviceToken(fcmToken);
+  FirebaseMessaging.instance.onTokenRefresh.listen((devicetoken) async {
+    debugPrint('new token $devicetoken');
+    await saveDeviceToken(devicetoken);
+    String? authtoken = await getAuthtokenFromStorage();
+    if (authtoken != null) {
+      API(authtoken: authtoken).registerDevice(devicetoken!);
+    }
   }).onError((err) {
     // Error getting token.
   });
