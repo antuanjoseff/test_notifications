@@ -103,6 +103,10 @@ void main() async {
   runApp(BlocProviders());
 }
 
+showSnackBar(SnackBar snackbar) {
+  ScaffoldMessenger.of(navigatiorKey.currentContext!).showSnackBar(snackbar);
+}
+
 class BlocProviders extends StatefulWidget {
   const BlocProviders({super.key});
 

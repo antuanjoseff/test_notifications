@@ -1,5 +1,13 @@
 import 'dart:convert';
+import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:test_notifications/models/api_data.dart';
+
+extension IsOk on http.Response {
+  bool get ok {
+    return (statusCode ~/ 100) == 2;
+  }
+}
 
 class API {
   String authtoken;
@@ -49,15 +57,22 @@ class API {
     });
   }
 
-  Future<http.Response> sendNotification(String message, int userid) async {
-    return http.post(
-      Uri.parse('$send_notification_url/$userid/'),
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-        'Authorization': 'Token ${authtoken}'
-      },
-      body: jsonEncode(
-          <String, String>{'title': 'UdG carpool', 'message': message}),
-    );
+  Future<ApiData> sendNotification(String message, int userid) async {
+    late http.Response response;
+    try {
+      response = await http.post(
+        Uri.parse('$send_notification_url/$userid/'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+          'Authorization': 'Token ${authtoken}'
+        },
+        body: jsonEncode(
+            <String, String>{'title': 'UdG carpool', 'message': message}),
+      );
+      return ApiData(
+          statusCode: response.statusCode, message: response.reasonPhrase);
+    } catch (e) {
+      return ApiData(statusCode: -1, message: 'Unknown error');
+    }
   }
 }

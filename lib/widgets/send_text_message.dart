@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:test_notifications/config/secure_storage.dart';
+import 'package:test_notifications/main.dart';
 import 'package:test_notifications/models/api.dart';
 import '../models/models.dart';
 import '../services/services.dart';
@@ -60,6 +61,12 @@ class _SendTextMessageState extends State<SendTextMessage> {
 void sendNotification(message, sender) async {
   debugPrint('send notification');
   String? authtoken = await getAuthtokenFromStorage();
-  http.Response response =
+
+  ApiData apidata =
       await API(authtoken: authtoken!).sendNotification(message, sender);
+  debugPrint('API DATA response code ${apidata.statusCode}');
+  if (apidata.statusCode != 200) {
+    final snackbar = SnackBar(content: Text('Error:  ${apidata.message}'));
+    showSnackBar(snackbar);
+  }
 }
