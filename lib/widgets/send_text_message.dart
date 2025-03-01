@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:test_notifications/config/secure_storage.dart';
 import 'package:test_notifications/main.dart';
 import 'package:test_notifications/models/api.dart';
+import 'package:test_notifications/utils/lib.dart';
 import '../models/models.dart';
 import '../services/services.dart';
 import 'package:http/http.dart' as http;
@@ -25,6 +26,7 @@ class _SendTextMessageState extends State<SendTextMessage> {
         children: [
           Expanded(
             child: TextFormField(
+              autofocus: true,
               maxLines: 4,
               minLines: 1,
               controller: myController,
@@ -59,14 +61,12 @@ class _SendTextMessageState extends State<SendTextMessage> {
 }
 
 void sendNotification(message, sender) async {
-  debugPrint('send notification');
   String? authtoken = await getAuthtokenFromStorage();
 
   ApiData apidata =
       await API(authtoken: authtoken!).sendNotification(message, sender);
-  debugPrint('API DATA response code ${apidata.statusCode}');
-  if (apidata.statusCode != 200) {
-    final snackbar = SnackBar(content: Text('Error:  ${apidata.message}'));
-    showSnackBar(snackbar);
+
+  if (!(apidata is Success)) {
+    showError(apidata);
   }
 }

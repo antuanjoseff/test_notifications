@@ -12,6 +12,7 @@ import 'package:test_notifications/blocs/UserCubit.dart';
 import 'package:test_notifications/models/api.dart';
 import 'package:test_notifications/models/models.dart';
 import 'package:test_notifications/services/PushNotifications.dart';
+import 'package:test_notifications/utils/lib.dart';
 import './config/secure_storage.dart';
 
 // import 'package:test_notifications/services/push_notifications_service.dart';
@@ -39,7 +40,6 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   String? token = await getAuthtokenFromStorage();
 
-  debugPrint('TOKEN: $token');
   if (token != null) {
     initRouterPath = '/message';
   }
@@ -49,11 +49,17 @@ void main() async {
   );
 
   FirebaseMessaging.instance.onTokenRefresh.listen((devicetoken) async {
-    debugPrint('new token $devicetoken');
+    debugPrint('REFRESH TOKEN $devicetoken');
+    String? oldtoken = await getAuthtokenFromStorage();
+    // if oldtoken then unregister it
     await saveDeviceToken(devicetoken);
     String? authtoken = await getAuthtokenFromStorage();
     if (authtoken != null) {
-      API(authtoken: authtoken).registerDevice(devicetoken!);
+      ApiData apidata =
+          await API(authtoken: authtoken).registerDevice(devicetoken!);
+      if (!(apidata is Success)) {
+        showError(apidata);
+      }
     }
   }).onError((err) {
     // Error getting token.
@@ -101,10 +107,6 @@ void main() async {
   });
 
   runApp(BlocProviders());
-}
-
-showSnackBar(SnackBar snackbar) {
-  ScaffoldMessenger.of(navigatiorKey.currentContext!).showSnackBar(snackbar);
 }
 
 class BlocProviders extends StatefulWidget {

@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:test_notifications/blocs/unread_notifications_cubit.dart';
 import 'package:test_notifications/models/api.dart';
+import 'package:test_notifications/utils/lib.dart';
 import '../config/config.dart';
 import '../models/models.dart';
 import './chat_detail.dart';
@@ -44,31 +45,40 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
       router.pushNamed('login');
     }
 
-    http.Response response = await API(authtoken: authtoken!).getUsers();
-    String utf8Response = Utf8Decoder().convert(response.bodyBytes);
-    users = usuariFromJson(utf8Response);
+    ApiData apidata = await API(authtoken: authtoken!).getUsers();
+    if (apidata is Success) {
+      String utf8Response = Utf8Decoder().convert(apidata.data.bodyBytes);
+      users = usuariFromJson(utf8Response);
 
-    users.forEach((u) {
-      usersMap[u.pk.toString()] = u;
-      if (u.username == username) {
-        me = u;
-      }
-    });
+      users.forEach((u) {
+        usersMap[u.pk.toString()] = u;
+        if (u.username == username) {
+          me = u;
+        }
+      });
+    } else {
+      showError(apidata);
+    }
     return users;
   }
 
   Future<List<ChatList>> getChatsData() async {
     authtoken = authtoken ?? await getAuthtokenFromStorage();
-    http.Response response =
-        await API(authtoken: authtoken!).getUserChatsList();
-    String utf8Response = Utf8Decoder().convert(response.bodyBytes);
-    chatList = chatListFromJson(utf8Response);
+    ApiData apidata = await API(authtoken: authtoken!).getUserChatsList();
 
-    chatList.forEach((chat) {
-      chatsMap[chat.theOther.toString()] = chat;
-    });
+    if (apidata is Success) {
+      String utf8Response = Utf8Decoder().convert(apidata.data.bodyBytes);
+      chatList = chatListFromJson(utf8Response);
 
-    return chatList;
+      chatList.forEach((chat) {
+        chatsMap[chat.theOther.toString()] = chat;
+      });
+
+      return chatList;
+    } else {
+      showError(apidata);
+      return [];
+    }
   }
 
   @override

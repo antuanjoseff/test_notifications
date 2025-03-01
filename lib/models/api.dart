@@ -22,39 +22,99 @@ class API {
   static String chat_detail_url = api_path + '/api/chats/detail';
   static String send_notification_url = api_path + '/api/chats/chatnotify';
 
-  Future<http.Response> registerDevice(String devicetoken) async {
-    http.Response response = await http.post(
-      Uri.parse(register_device_url),
-      headers: <String, String>{
+  Map<String, String> getAuthHeaders() {
+    Map<String, String> headers = {
+      'Content-Type': 'application/json; charset=UTF-8',
+      'Authorization': 'Token ${authtoken}'
+    };
+    return headers;
+  }
+
+  Future<ApiData> doPost(
+      Uri uri, Map<String, String> headers, String body) async {
+    try {
+      http.Response response =
+          await http.post(uri, headers: headers, body: body);
+      if (response.ok) {
+        return Success(data: response);
+      } else {
+        return Error(message: response.statusCode.toString());
+      }
+    } on Exception catch (e) {
+      return ExceptionError(exception: e);
+    } catch (e) {
+      return Error(message: e.toString());
+    }
+  }
+
+  Future<ApiData> doGet(Uri uri, Map<String, String> headers) async {
+    try {
+      http.Response response = await http.get(uri, headers: headers);
+      if (response.ok) {
+        return Success(data: response);
+      } else {
+        return Error(message: response.statusCode.toString());
+      }
+    } on Exception catch (e) {
+      return ExceptionError(exception: e);
+    } catch (e) {
+      return Error(message: e.toString());
+    }
+  }
+
+  Future<ApiData> registerDevice(String devicetoken) async {
+    Uri uri = Uri.parse(register_device_url);
+    Map<String, String> headers = getAuthHeaders();
+    String body = jsonEncode(
+        <String, String>{'registration_id': devicetoken, 'type': 'web'});
+
+    return doPost(uri, headers, body);
+  }
+
+  Future<ApiData> getUsers() async {
+    Uri uri = Uri.parse(get_users_url);
+    Map<String, String> headers = getAuthHeaders();
+
+    return doGet(uri, headers);
+  }
+
+  Future<ApiData> getUserChatsList() async {
+    try {
+      http.Response response = await http
+          .get(Uri.parse(get_user_charts_url), headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
         'Authorization': 'Token ${authtoken}'
-      },
-      body: jsonEncode(
-          <String, String>{'registration_id': devicetoken, 'type': 'web'}),
-    );
-    return response;
+      });
+
+      if (response.ok) {
+        return Success(data: response);
+      } else {
+        return Error(message: response.statusCode.toString());
+      }
+    } on Exception catch (e) {
+      return ExceptionError(exception: e);
+    } catch (e) {
+      return Error(message: e.toString());
+    }
   }
 
-  Future<http.Response> getUsers() async {
-    return http.get(Uri.parse(get_users_url), headers: <String, String>{
-      'Content-Type': 'application/json; charset=UTF-8',
-      'Authorization': 'Token $authtoken'
-    });
-  }
-
-  Future<http.Response> getUserChatsList() async {
-    return http.get(Uri.parse(get_user_charts_url), headers: <String, String>{
-      'Content-Type': 'application/json; charset=UTF-8',
-      'Authorization': 'Token ${authtoken}'
-    });
-  }
-
-  Future<http.Response> getChatDetail(int userid) async {
-    return http
-        .get(Uri.parse('$chat_detail_url/$userid'), headers: <String, String>{
-      'Content-Type': 'application/json; charset=UTF-8',
-      'Authorization': 'Token ${authtoken}'
-    });
+  Future<ApiData> getChatDetail(int userid) async {
+    try {
+      http.Response response = await http
+          .get(Uri.parse('$chat_detail_url/$userid'), headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': 'Token ${authtoken}'
+      });
+      if (response.ok) {
+        return Success(data: response);
+      } else {
+        return Error(message: response.statusCode.toString());
+      }
+    } on Exception catch (e) {
+      return ExceptionError(exception: e);
+    } catch (e) {
+      return Error(message: e.toString());
+    }
   }
 
   Future<ApiData> sendNotification(String message, int userid) async {
@@ -69,10 +129,15 @@ class API {
         body: jsonEncode(
             <String, String>{'title': 'UdG carpool', 'message': message}),
       );
-      return ApiData(
-          statusCode: response.statusCode, message: response.reasonPhrase);
+      if (response.ok) {
+        return Success(data: []);
+      } else {
+        return Error(message: response.statusCode.toString());
+      }
+    } on Exception catch (e) {
+      return ExceptionError(exception: e);
     } catch (e) {
-      return ApiData(statusCode: -1, message: 'Unknown error');
+      return Error(message: e.toString());
     }
   }
 }

@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:test_notifications/models/api.dart';
+import 'package:test_notifications/utils/lib.dart';
 
 import '../services/services.dart';
 import 'package:test_notifications/config/secure_storage.dart';
@@ -29,17 +30,20 @@ class _ChatDetailState extends State<ChatDetail> {
   ScrollController scrollController = ScrollController();
   final StreamController<Result> fakeStream = StreamController.broadcast();
 
-  Future getChatDetail() async {
+  Future<ChatDetailModel?> getChatDetail() async {
     authtoken = authtoken ?? await getAuthtokenFromStorage();
     debugPrint('AUTHTOKEN $authtoken');
 
     int userid = 7;
-    http.Response response =
-        await API(authtoken: authtoken!).getChatDetail(userid);
 
-    String utf8Response = Utf8Decoder().convert(response.bodyBytes);
+    ApiData apidata = await API(authtoken: authtoken!).getChatDetail(userid);
 
-    return chatDetailFromJson(utf8Response);
+    if (!(apidata is Success)) {
+      showError(apidata);
+    } else {
+      String utf8Response = Utf8Decoder().convert(apidata.data.bodyBytes);
+      return chatDetailFromJson(utf8Response);
+    }
   }
 
   @override
@@ -49,7 +53,7 @@ class _ChatDetailState extends State<ChatDetail> {
     });
 
     getChatDetail().then((value) {
-      allMessages = value.results;
+      allMessages = value!.results;
       allMessages.forEach((m) {
         debugPrint('${m.body}');
         fakeStream.add(m);
@@ -86,7 +90,6 @@ class _ChatDetailState extends State<ChatDetail> {
 
                             Result message = snapshot.data!;
 
-                            debugPrint('MESSAGE $message');
                             allMessages.add(message);
 
                             return ListView.builder(
