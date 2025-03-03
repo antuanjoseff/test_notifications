@@ -104,13 +104,20 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
                 child: BlocBuilder<UnreadNotificationsCubit,
                     UnreadNotificationsModel>(
                   builder: (context, state) {
+                    List<int> keys = chatsMap.keys.map((e) {
+                      return int.parse(e);
+                    }).toList();
+                    debugPrint('KEYS $keys');
                     return ListView.builder(
-                      itemCount: users.length,
+                      itemCount: keys.length,
                       itemBuilder: (context, index) {
-                        String userPk = users[index].pk.toString();
+                        String userPk = keys[index].toString();
 
-                        if (!chatsMap.keys.contains(users[index].pk.toString()))
+                        if (keys[index] == me!.pk) {
                           return Container();
+                        }
+
+                        debugPrint('userPK $userPk');
 
                         String lastMessage = chatsMap[userPk].lastMessage;
 
@@ -120,12 +127,16 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
                         lastMessageTime +=
                             '${chatsMap[userPk].timestampLastMessage.minute.toString().padLeft(2, '0')}';
 
-                        int unreadNotifs = state.unread[users[index].pk] ?? 0;
+                        debugPrint('unread ${state.unread}');
+                        debugPrint(
+                            'unread for user ${userPk} ${state.unread[int.parse(userPk)]}');
+
+                        int unreadNotifs = state.unread[int.parse(userPk)] ?? 0;
 
                         return ChatTile(
                             context,
                             chatsMap[userPk].chatId,
-                            users[index],
+                            usersMap[userPk]!,
                             lastMessage,
                             lastMessageTime,
                             unreadNotifs);

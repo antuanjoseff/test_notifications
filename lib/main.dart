@@ -86,12 +86,17 @@ void main() async {
   });
 
   OnMessage.instance.stream.listen((MessageEvent event) {
-    debugPrint('${event.data.toString()}');
+    debugPrint('1 ${event.data.toString()}');
+
     final unreadNotificationsCubit =
         navigatiorKey.currentContext!.read<UnreadNotificationsCubit>();
     // final data = jsonDecode(event.data.toString());
     if (kIsWeb) {
-      int key = 13;
+      debugPrint('2 Data');
+      Map<String, dynamic> data = jsonDecode(event.data.toString());
+      debugPrint('2 Data ${data.toString()}');
+      int key = int.parse(data['data']['sender']);
+      debugPrint('key ${key}');
       Map<int, int> unread = unreadNotificationsCubit.state.unread;
 
       if (!unread.keys.contains(key)) {
@@ -100,7 +105,7 @@ void main() async {
         int old = unread[key] ?? 0;
         unread[key] = old + 1;
       }
-
+      debugPrint('UNREAD $unread');
       unreadNotificationsCubit
           .setNotifications(UnreadNotificationsModel(unread: unread));
     }

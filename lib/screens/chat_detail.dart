@@ -76,7 +76,9 @@ class _ChatDetailState extends State<ChatDetail> {
     final unreadNotificationsCubit = context.read<UnreadNotificationsCubit>();
     Map<int, int> unread = unreadNotificationsCubit.state.unread;
     int key = widget.user.pk;
+    debugPrint('RESSSSSSSSSSSSSSSSSSSSET ${unread.keys}');
     if (unread.keys.contains(key)) {
+      debugPrint('RESSSSSSSSSSSSSSSSSSSSET');
       unread[key] = 0;
       unreadNotificationsCubit
           .setNotifications(UnreadNotificationsModel(unread: unread));
