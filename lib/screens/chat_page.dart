@@ -117,10 +117,10 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
                     String lastMessage = chatsMap[userIdx].lastMessage;
 
                     String lastMessageTime =
-                        '${chatsMap[userIdx].latestTimestamp.hour.toString().padLeft(2, '0')}:';
+                        '${chatsMap[userIdx].timestampLastMessage.hour.toString().padLeft(2, '0')}:';
 
                     lastMessageTime +=
-                        '${chatsMap[userIdx].latestTimestamp.minute.toString().padLeft(2, '0')}';
+                        '${chatsMap[userIdx].timestampLastMessage.minute.toString().padLeft(2, '0')}';
 
                     int unreadNotifs = state.unread[users[index].pk] ?? 0;
 

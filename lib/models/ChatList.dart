@@ -1,7 +1,3 @@
-// To parse this JSON data, do
-//
-//     final chatList = chatListFromJson(jsonString);
-
 import 'dart:convert';
 
 List<ChatList> chatListFromJson(String str) =>
@@ -11,29 +7,33 @@ String chatListToJson(List<ChatList> data) =>
     json.encode(List<dynamic>.from(data.map((x) => x.toJson())));
 
 class ChatList {
-  int me;
+  int chatId;
   int theOther;
-  DateTime latestTimestamp;
   String lastMessage;
+  DateTime timestampLastMessage;
+  int messagesNotReaded;
 
   ChatList({
-    required this.me,
+    required this.chatId,
     required this.theOther,
-    required this.latestTimestamp,
     required this.lastMessage,
+    required this.timestampLastMessage,
+    required this.messagesNotReaded,
   });
 
   factory ChatList.fromJson(Map<String, dynamic> json) => ChatList(
-        me: json["me"],
+        chatId: json["chat_id"],
         theOther: json["the_other"],
-        latestTimestamp: DateTime.parse(json["latest_timestamp"]),
         lastMessage: json["last_message"],
+        timestampLastMessage: DateTime.parse(json["timestamp_last_message"]),
+        messagesNotReaded: json["messages_not_readed"],
       );
 
   Map<String, dynamic> toJson() => {
-        "me": me,
+        "chat_id": chatId,
         "the_other": theOther,
-        "latest_timestamp": latestTimestamp.toIso8601String(),
         "last_message": lastMessage,
+        "timestamp_last_message": timestampLastMessage.toIso8601String(),
+        "messages_not_readed": messagesNotReaded,
       };
 }
