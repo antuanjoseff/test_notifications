@@ -187,6 +187,8 @@ class PushNotifications {
         if (kIsWeb) {
           // debugPrint('message from foreground');
           if (!mainStream.isClosed) {
+            print('Sender   ${message.data['sender']}');
+            print('Receiver   ${message.data['receiver']}');
             mainStream.add(Result(
               body: message.notification?.body ?? '',
               sender: message.data['sender'],

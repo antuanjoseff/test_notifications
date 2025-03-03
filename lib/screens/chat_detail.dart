@@ -123,7 +123,7 @@ class _ChatDetailState extends State<ChatDetail> {
                 )),
           ),
           Expanded(
-              child: SendTextMessage(me: widget.me, chatId: widget.chatId)),
+              child: SendTextMessage(me: widget.me, receiver: widget.user.pk)),
         ],
       ),
     );

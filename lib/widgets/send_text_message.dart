@@ -8,9 +8,9 @@ import '../services/services.dart';
 import 'package:http/http.dart' as http;
 
 class SendTextMessage extends StatefulWidget {
-  int chatId;
+  int receiver;
   int me;
-  SendTextMessage({super.key, required this.chatId, required this.me});
+  SendTextMessage({super.key, required this.receiver, required this.me});
 
   @override
   State<SendTextMessage> createState() => _SendTextMessageState();
@@ -44,11 +44,11 @@ class _SendTextMessageState extends State<SendTextMessage> {
               onPressed: () {
                 if (myController.text.isEmpty) return;
 
-                sendNotification(myController.text, widget.chatId);
+                sendNotification(myController.text, widget.receiver);
                 mainStream.add(Result(
                   body: myController.text,
                   sender: widget.me,
-                  receiver: widget.chatId,
+                  receiver: widget.receiver,
                   timestamp: DateTime.now(),
                 ));
                 myController.text = '';
