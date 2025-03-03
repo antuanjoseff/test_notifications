@@ -1,23 +1,25 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:test_notifications/blocs/unread_notifications_cubit.dart';
+import 'package:test_notifications/config/router.dart';
 import 'package:test_notifications/models/api.dart';
 import 'package:test_notifications/utils/lib.dart';
-
 import '../services/services.dart';
 import 'package:test_notifications/config/secure_storage.dart';
-
 import '../models/models.dart';
 import '../widgets/received_message.dart';
 import '../widgets/send_message.dart';
 import '../widgets/send_text_message.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'package:async/async.dart' show StreamGroup;
 
 class ChatDetail extends StatefulWidget {
-  ChatDetail({super.key, required this.me, required this.user});
+  ChatDetail(
+      {super.key, required this.me, required this.user, required this.chatId});
   Usuari user;
   int me;
+  int chatId;
 
   @override
   State<ChatDetail> createState() => _ChatDetailState();
@@ -25,18 +27,17 @@ class ChatDetail extends StatefulWidget {
 
 class _ChatDetailState extends State<ChatDetail> {
   String? authtoken;
-
   List<Result> allMessages = [];
   ScrollController scrollController = ScrollController();
-  final StreamController<Result> fakeStream = StreamController.broadcast();
+  final StreamController<List<Result>> fakeStream =
+      StreamController.broadcast();
 
   Future<ChatDetailModel?> getChatDetail() async {
     authtoken = authtoken ?? await getAuthtokenFromStorage();
     debugPrint('AUTHTOKEN $authtoken');
 
-    int userid = 7;
-
-    ApiData apidata = await API(authtoken: authtoken!).getChatDetail(userid);
+    ApiData apidata =
+        await API(authtoken: authtoken!).getChatDetail(widget.chatId);
 
     if (!(apidata is Success)) {
       showError(apidata);
@@ -48,17 +49,19 @@ class _ChatDetailState extends State<ChatDetail> {
 
   @override
   void initState() {
-    mainStream.stream.listen((message) {
-      fakeStream.add(message);
+    StreamSubscription mainstreaming = mainStream.stream.listen((message) {
+      allMessages.add(message);
+      fakeStream.add(allMessages);
     });
+    mainstreaming.pause();
 
     getChatDetail().then((value) {
       allMessages = value!.results;
-      allMessages.forEach((m) {
-        debugPrint('${m.body}');
-        fakeStream.add(m);
-      });
-      setState(() {});
+      fakeStream.add(allMessages);
+      // allMessages.forEach((m) {
+      //   fakeStream.add(m);
+      // });
+      mainstreaming.resume();
     });
     super.initState();
   }
@@ -70,10 +73,19 @@ class _ChatDetailState extends State<ChatDetail> {
 
   @override
   Widget build(BuildContext context) {
+    final unreadNotificationsCubit = context.read<UnreadNotificationsCubit>();
+    Map<int, int> unread = unreadNotificationsCubit.state.unread;
+    int key = widget.user.pk;
+    if (unread.keys.contains(key)) {
+      unread[key] = 0;
+      unreadNotificationsCubit
+          .setNotifications(UnreadNotificationsModel(unread: unread));
+    }
+
     return Scaffold(
       appBar: AppBar(
           title: Text(
-              '${widget.user.firstFamilyName ?? ''} ${widget.user.secondFamilyName ?? ''}')),
+              '${widget.user.name ?? ''} ${widget.user.firstFamilyName ?? ''} ${widget.user.secondFamilyName ?? ''}')),
       body: Column(
         children: [
           SingleChildScrollView(
@@ -83,40 +95,26 @@ class _ChatDetailState extends State<ChatDetail> {
                   children: [
                     Expanded(
                       child: StreamBuilder(
-                          stream: StreamGroup.merge(
-                              [fakeStream.stream, mainStream.stream]),
+                          // stream: StreamGroup.merge([fakeStream.stream, mainStream.stream]),
+                          stream: StreamGroup.merge([fakeStream.stream]),
                           builder: (context, snapshot) {
                             if (snapshot.data == null) return Container();
-
-                            Result message = snapshot.data!;
-
-                            allMessages.add(message);
+                            // Result message = snapshot.data!;
+                            List<Result> messages = snapshot.data!;
+                            // allMessages.add(message);
 
                             return ListView.builder(
                                 controller: scrollController,
-                                itemCount: allMessages.length +
-                                    1, //one extra element to do something
+                                itemCount: messages
+                                    .length, //one extra element to do something
                                 itemBuilder: (context, index) {
-                                  if (index == allMessages.length) {
-                                    // if (index != 1) {
-                                    //   scrollController.animateTo(
-                                    //       scrollController
-                                    //           .position.maxScrollExtent,
-                                    //       duration: Duration(milliseconds: 300),
-                                    //       curve: Curves.easeOut);
-                                    // }
-                                    return Container(
-                                      height: 70,
-                                    );
+                                  if (allMessages[index].sender == widget.me) {
+                                    return SendMessage(
+                                        me: widget.me,
+                                        message: allMessages[index]);
                                   } else {
-                                    if (allMessages[index].sender ==
-                                        widget.me) {
-                                      return SendMessage(
-                                          message: allMessages[index]);
-                                    } else {
-                                      return ReceivedMessage(
-                                          message: allMessages[index]);
-                                    }
+                                    return ReceivedMessage(
+                                        message: allMessages[index]);
                                   }
                                 });
                           }),
@@ -124,7 +122,8 @@ class _ChatDetailState extends State<ChatDetail> {
                   ],
                 )),
           ),
-          Expanded(child: SendTextMessage(user: widget.user)),
+          Expanded(
+              child: SendTextMessage(me: widget.me, chatId: widget.chatId)),
         ],
       ),
     );

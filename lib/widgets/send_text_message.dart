@@ -8,8 +8,9 @@ import '../services/services.dart';
 import 'package:http/http.dart' as http;
 
 class SendTextMessage extends StatefulWidget {
-  Usuari user;
-  SendTextMessage({super.key, required this.user});
+  int chatId;
+  int me;
+  SendTextMessage({super.key, required this.chatId, required this.me});
 
   @override
   State<SendTextMessage> createState() => _SendTextMessageState();
@@ -32,7 +33,7 @@ class _SendTextMessageState extends State<SendTextMessage> {
               controller: myController,
               textAlignVertical: TextAlignVertical.center,
               keyboardType: TextInputType.multiline,
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                 contentPadding: EdgeInsets.only(left: 10),
                 hintText: "type a message",
                 border: OutlineInputBorder(),
@@ -43,11 +44,11 @@ class _SendTextMessageState extends State<SendTextMessage> {
               onPressed: () {
                 if (myController.text.isEmpty) return;
 
-                sendNotification(myController.text, 7);
+                sendNotification(myController.text, widget.chatId);
                 mainStream.add(Result(
                   body: myController.text,
-                  sender: 13,
-                  receiver: 7,
+                  sender: widget.me,
+                  receiver: widget.chatId,
                   timestamp: DateTime.now(),
                 ));
                 myController.text = '';

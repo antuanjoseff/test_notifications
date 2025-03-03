@@ -189,8 +189,8 @@ class PushNotifications {
           if (!mainStream.isClosed) {
             mainStream.add(Result(
               body: message.notification?.body ?? '',
-              sender: 13,
-              receiver: 7,
+              sender: message.data['sender'],
+              receiver: message.data['receiver'],
               timestamp: DateTime.now(),
             ));
           } else {}

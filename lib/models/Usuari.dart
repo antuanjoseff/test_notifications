@@ -1,3 +1,7 @@
+// To parse this JSON data, do
+//
+//     final usuari = usuariFromJson(jsonString);
+
 import 'dart:convert';
 
 List<Usuari> usuariFromJson(String str) =>
@@ -11,6 +15,7 @@ class Usuari {
   dynamic foto;
   String email;
   String username;
+  String? name;
   String? firstFamilyName;
   String? secondFamilyName;
 
@@ -19,6 +24,7 @@ class Usuari {
     required this.foto,
     required this.email,
     required this.username,
+    required this.name,
     required this.firstFamilyName,
     required this.secondFamilyName,
   });
@@ -28,6 +34,7 @@ class Usuari {
         foto: json["foto"],
         email: json["email"],
         username: json["username"],
+        name: json["name"],
         firstFamilyName: json["first_family_name"],
         secondFamilyName: json["second_family_name"],
       );
@@ -37,6 +44,7 @@ class Usuari {
         "foto": foto,
         "email": email,
         "username": username,
+        "name": name,
         "first_family_name": firstFamilyName,
         "second_family_name": secondFamilyName,
       };
