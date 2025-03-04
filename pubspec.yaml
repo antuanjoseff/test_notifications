@@ -29,7 +29,6 @@ environment:
 # versions available, run `flutter pub outdated`.
 dependencies:
   onmessage:
-  fluttertoast:
   url_launcher:
   firebase_core:
   flutter_bloc:
@@ -38,6 +37,7 @@ dependencies:
   go_router:
   flutter_secure_storage:
   flutter:
+    uses-material-design: true
     sdk: flutter
 
   # The following adds the Cupertino Icons font to your application.
