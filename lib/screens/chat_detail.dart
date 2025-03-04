@@ -29,12 +29,12 @@ class _ChatDetailState extends State<ChatDetail> {
   String? authtoken;
   List<Result> allMessages = [];
   ScrollController scrollController = ScrollController();
-  final StreamController<List<Result>> fakeStream =
-      StreamController.broadcast();
+
+  final unreadNotificationsCubit =
+      navigatiorKey.currentContext!.read<UnreadNotificationsCubit>();
 
   Future<ChatDetailModel?> getChatDetail() async {
     authtoken = authtoken ?? await getAuthtokenFromStorage();
-    debugPrint('AUTHTOKEN $authtoken');
 
     ApiData apidata =
         await API(authtoken: authtoken!).getChatDetail(widget.chatId);
@@ -49,15 +49,15 @@ class _ChatDetailState extends State<ChatDetail> {
 
   @override
   void initState() {
-    StreamSubscription mainstreaming = mainStream.stream.listen((message) {
+    StreamSubscription mainstreaming = primaryStream.stream.listen((message) {
       allMessages.add(message);
-      fakeStream.add(allMessages);
+      secondaryStream.add(allMessages);
     });
     mainstreaming.pause();
 
     getChatDetail().then((value) {
       allMessages = value!.results;
-      fakeStream.add(allMessages);
+      secondaryStream.add(allMessages);
       // allMessages.forEach((m) {
       //   fakeStream.add(m);
       // });
@@ -71,18 +71,19 @@ class _ChatDetailState extends State<ChatDetail> {
     super.dispose();
   }
 
-  @override
-  Widget build(BuildContext context) {
-    final unreadNotificationsCubit = context.read<UnreadNotificationsCubit>();
+  void resetCubit() {
     Map<int, int> unread = unreadNotificationsCubit.state.unread;
     int key = widget.user.pk;
-    debugPrint('RESSSSSSSSSSSSSSSSSSSSET ${unread.keys}');
     if (unread.keys.contains(key)) {
-      debugPrint('RESSSSSSSSSSSSSSSSSSSSET');
       unread[key] = 0;
       unreadNotificationsCubit
           .setNotifications(UnreadNotificationsModel(unread: unread));
     }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    resetCubit();
 
     return Scaffold(
       appBar: AppBar(
@@ -98,8 +99,9 @@ class _ChatDetailState extends State<ChatDetail> {
                     Expanded(
                       child: StreamBuilder(
                           // stream: StreamGroup.merge([fakeStream.stream, mainStream.stream]),
-                          stream: StreamGroup.merge([fakeStream.stream]),
+                          stream: StreamGroup.merge([secondaryStream.stream]),
                           builder: (context, snapshot) {
+                            resetCubit();
                             if (snapshot.data == null) return Container();
                             // Result message = snapshot.data!;
                             List<Result> messages = snapshot.data!;

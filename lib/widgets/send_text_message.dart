@@ -45,7 +45,7 @@ class _SendTextMessageState extends State<SendTextMessage> {
                 if (myController.text.isEmpty) return;
 
                 sendNotification(myController.text, widget.receiver);
-                mainStream.add(Result(
+                primaryStream.add(Result(
                   body: myController.text,
                   sender: widget.me,
                   receiver: widget.receiver,

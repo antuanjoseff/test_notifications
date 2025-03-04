@@ -67,7 +67,7 @@ void main() async {
 
   PushNotifications.init();
 
-  mainStream.stream.listen((message) {
+  primaryStream.stream.listen((message) {
     final unreadNotificationsCubit =
         navigatiorKey.currentContext!.read<UnreadNotificationsCubit>();
 
@@ -92,12 +92,13 @@ void main() async {
         navigatiorKey.currentContext!.read<UnreadNotificationsCubit>();
     // final data = jsonDecode(event.data.toString());
     if (kIsWeb) {
-      debugPrint('2 Data');
       Map<String, dynamic> data = jsonDecode(event.data.toString());
-      debugPrint('2 Data ${data.toString()}');
       int key = int.parse(data['data']['sender']);
-      debugPrint('key ${key}');
       Map<int, int> unread = unreadNotificationsCubit.state.unread;
+
+      debugPrint('2 ${data}');
+      debugPrint('2 ${key}');
+      debugPrint('2 ${unread}');
 
       if (!unread.keys.contains(key)) {
         unread[key] = 1;
@@ -105,7 +106,7 @@ void main() async {
         int old = unread[key] ?? 0;
         unread[key] = old + 1;
       }
-      debugPrint('UNREAD $unread');
+
       unreadNotificationsCubit
           .setNotifications(UnreadNotificationsModel(unread: unread));
     }

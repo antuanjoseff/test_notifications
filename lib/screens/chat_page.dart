@@ -19,8 +19,7 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
   String? username;
   String? authtoken;
   String? devicetoken;
-  Map<String, Usuari> usersMap = {};
-  Map<String, dynamic> chatsMap = {};
+  Map<int, Usuari> usersMap = {};
   List<String> allMessages = [];
   AppLifecycleState? _notification;
   List<Usuari> users = [];
@@ -55,7 +54,7 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
       users = usuariFromJson(utf8Response);
 
       users.forEach((u) {
-        usersMap[u.pk.toString()] = u;
+        usersMap[u.pk] = u;
         if (u.username == username) {
           me = u;
         }
@@ -67,10 +66,6 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
         String utf8Response = Utf8Decoder().convert(apidata.data.bodyBytes);
         chatList = chatListFromJson(utf8Response);
 
-        chatList.forEach((chat) {
-          chatsMap[chat.theOther.toString()] = chat;
-        });
-        debugPrint('chatlist ${chatsMap.keys}');
         return users;
       } else {
         showError(apidata);
@@ -104,38 +99,28 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
                 child: BlocBuilder<UnreadNotificationsCubit,
                     UnreadNotificationsModel>(
                   builder: (context, state) {
-                    List<int> keys = chatsMap.keys.map((e) {
-                      return int.parse(e);
-                    }).toList();
-                    debugPrint('KEYS $keys');
                     return ListView.builder(
-                      itemCount: keys.length,
+                      itemCount: chatList.length,
                       itemBuilder: (context, index) {
-                        String userPk = keys[index].toString();
+                        int userPk = chatList[index].theOther;
 
-                        if (keys[index] == me!.pk) {
+                        if (userPk == me!.pk) {
                           return Container();
                         }
 
-                        debugPrint('userPK $userPk');
-
-                        String lastMessage = chatsMap[userPk].lastMessage;
+                        String lastMessage = chatList[index].lastMessage;
 
                         String lastMessageTime =
-                            '${chatsMap[userPk].timestampLastMessage.hour.toString().padLeft(2, '0')}:';
+                            '${chatList[index].timestampLastMessage.hour.toString().padLeft(2, '0')}:';
 
                         lastMessageTime +=
-                            '${chatsMap[userPk].timestampLastMessage.minute.toString().padLeft(2, '0')}';
+                            '${chatList[index].timestampLastMessage.minute.toString().padLeft(2, '0')}';
 
-                        debugPrint('unread ${state.unread}');
-                        debugPrint(
-                            'unread for user ${userPk} ${state.unread[int.parse(userPk)]}');
-
-                        int unreadNotifs = state.unread[int.parse(userPk)] ?? 0;
+                        int unreadNotifs = state.unread[userPk] ?? 0;
 
                         return ChatTile(
                             context,
-                            chatsMap[userPk].chatId,
+                            chatList[index].chatId,
                             usersMap[userPk]!,
                             lastMessage,
                             lastMessageTime,

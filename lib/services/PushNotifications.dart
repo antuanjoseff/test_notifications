@@ -20,7 +20,9 @@ Future _firebaseBackgroundMessage(RemoteMessage message) async {
   }
 }
 
-final StreamController<Result> mainStream = StreamController.broadcast();
+final StreamController<Result> primaryStream = StreamController.broadcast();
+final StreamController<List<Result>> secondaryStream =
+    StreamController.broadcast();
 
 class PushNotifications {
   static final _firebaseMessaging = FirebaseMessaging.instance;
@@ -185,11 +187,9 @@ class PushNotifications {
       messageController.add(message.notification?.title ?? 'no-title');
       if (message.notification != null) {
         if (kIsWeb) {
-          // debugPrint('message from foreground');
-          if (!mainStream.isClosed) {
-            print('FOREGROUND Sender   ${message.data['sender']}');
-            print('Receiver   ${message.data['receiver']}');
-            mainStream.add(Result(
+          debugPrint('message from foreground');
+          if (!primaryStream.isClosed) {
+            primaryStream.add(Result(
               body: message.notification?.body ?? '',
               sender: int.parse(message.data['sender']),
               receiver: int.parse(message.data['receiver']),
