@@ -4,7 +4,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import '../config/config.dart';
 import '../models/models.dart';
-import '../blocs/unread_notifications_cubit.dart';
 
 @pragma('vm:entry-point')
 Future _firebaseBackgroundMessage(RemoteMessage message) async {
