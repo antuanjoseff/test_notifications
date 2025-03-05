@@ -91,6 +91,7 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
+    debugPrint('chatlist Length ${chatsMap.length}');
     return Scaffold(
         appBar: AppBar(
           title: Text('Xat'),

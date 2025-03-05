@@ -65,23 +65,26 @@ class _SendTextMessageState extends State<SendTextMessage> {
               onPressed: () {
                 if (myController.text.isEmpty) return;
                 DateTime now = DateTime.now();
-                sendNotification(myController.text, widget.receiver);
+                // sendNotification(myController.text, widget.receiver);
                 primaryStream.add(Result(
                     body: myController.text,
                     sender: widget.me,
                     chat: widget.chat_id,
                     receiver: widget.receiver,
                     timestamp: now));
-                myController.text = '';
 
                 Map<int, Chat> unread = unreadNotificationsCubit.state.unread;
-                unread[widget.chat_id]!.lastMessage = myController.text;
-                unread[widget.chat_id]!.timestampLastMessage = now;
-
-                unreadNotificationsCubit
-                    .setNotifications(UnreadNotificationsModel(unread: unread));
+                int key = widget.chat_id;
+                if (unread.keys.contains(key)) {
+                  unread[key]!.lastMessage = myController.text;
+                  unread[key]!.timestampLastMessage = now;
+                  unread[key]!.messagesNotRead = 0;
+                  unreadNotificationsCubit.setNotifications(
+                      UnreadNotificationsModel(unread: unread));
+                }
 
                 FocusScope.of(context).previousFocus();
+                myController.text = '';
                 _scrollDown();
               },
               child: Icon(Icons.send))
