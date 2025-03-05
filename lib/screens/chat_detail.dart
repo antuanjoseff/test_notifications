@@ -80,10 +80,10 @@ class _ChatDetailState extends State<ChatDetail> {
   }
 
   void resetCubit() {
-    Map<int, int> unread = unreadNotificationsCubit.state.unread;
+    Map<int, Chat> unread = unreadNotificationsCubit.state.unread;
     int key = widget.user.pk;
     if (unread.keys.contains(key)) {
-      unread[key] = 0;
+      unread[key]!.messagesNotRead = 0;
       unreadNotificationsCubit
           .setNotifications(UnreadNotificationsModel(unread: unread));
     }
@@ -146,6 +146,7 @@ class _ChatDetailState extends State<ChatDetail> {
           Expanded(
               child: SendTextMessage(
             me: widget.me,
+            chat_id: widget.chatId,
             receiver: widget.user.pk,
             scrollController: scrollController,
           )),

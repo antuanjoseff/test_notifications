@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:test_notifications/blocs/unread_notifications_cubit.dart';
+import 'package:test_notifications/config/router.dart';
 import 'package:test_notifications/config/secure_storage.dart';
 import 'package:test_notifications/main.dart';
 import 'package:test_notifications/models/api.dart';
@@ -10,12 +13,14 @@ import 'package:http/http.dart' as http;
 class SendTextMessage extends StatefulWidget {
   int receiver;
   int me;
+  int chat_id;
   ScrollController scrollController;
 
   SendTextMessage(
       {super.key,
       required this.receiver,
       required this.me,
+      required this.chat_id,
       required this.scrollController});
 
   @override
@@ -24,6 +29,8 @@ class SendTextMessage extends StatefulWidget {
 
 class _SendTextMessageState extends State<SendTextMessage> {
   final myController = TextEditingController();
+  final unreadNotificationsCubit =
+      navigatiorKey.currentContext!.read<UnreadNotificationsCubit>();
 
   void _scrollDown() {
     widget.scrollController.animateTo(
@@ -62,9 +69,17 @@ class _SendTextMessageState extends State<SendTextMessage> {
                 primaryStream.add(Result(
                     body: myController.text,
                     sender: widget.me,
+                    chat: widget.chat_id,
                     receiver: widget.receiver,
                     timestamp: now));
                 myController.text = '';
+
+                Map<int, Chat> unread = unreadNotificationsCubit.state.unread;
+                unread[widget.chat_id]!.lastMessage = myController.text;
+                unread[widget.chat_id]!.timestampLastMessage = now;
+
+                unreadNotificationsCubit
+                    .setNotifications(UnreadNotificationsModel(unread: unread));
 
                 FocusScope.of(context).previousFocus();
                 _scrollDown();

@@ -195,6 +195,7 @@ class PushNotifications {
               body: message.notification?.body ?? '',
               sender: int.parse(message.data['sender']),
               receiver: int.parse(message.data['receiver']),
+              chat: int.parse(message.data['chat_id']),
               timestamp: DateTime.now(),
             ));
           } else {}

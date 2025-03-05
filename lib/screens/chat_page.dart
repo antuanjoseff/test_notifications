@@ -20,15 +20,18 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
   String? authtoken;
   String? devicetoken;
   Map<int, Usuari> usersMap = {};
+  Map<int, Chat> chatsMap = {};
   List<String> allMessages = [];
   AppLifecycleState? _notification;
   List<Usuari> users = [];
   Usuari? me;
-  List<ChatList> chatList = [];
+  List<Chat> chatList = [];
+
+  final unreadNotificationsCubit =
+      navigatiorKey.currentContext!.read<UnreadNotificationsCubit>();
 
   @override
   void initState() {
-    super.initState();
     WidgetsBinding.instance.addObserver(this);
     getData().then((value) {
       value.forEach((v) {
@@ -38,6 +41,7 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
       users = value;
       setState(() {});
     });
+    super.initState();
   }
 
   Future<List<Usuari>> getData() async {
@@ -65,7 +69,15 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
       if (apidata is Success) {
         String utf8Response = Utf8Decoder().convert(apidata.data.bodyBytes);
         chatList = chatListFromJson(utf8Response);
+        Map<int, Chat> unread = unreadNotificationsCubit.state.unread;
 
+        chatList.forEach((chat) {
+          chatsMap[chat.chatId] = chat;
+          unread[chat.chatId] = chat;
+        });
+
+        unreadNotificationsCubit
+            .setNotifications(UnreadNotificationsModel(unread: unread));
         return users;
       } else {
         showError(apidata);
@@ -102,21 +114,26 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
                     return ListView.builder(
                       itemCount: chatList.length,
                       itemBuilder: (context, index) {
+                        int chat_id = chatList[index].chatId;
+                        debugPrint('CHAT ID ${chat_id}');
                         int userPk = chatList[index].theOther;
 
                         if (userPk == me!.pk) {
                           return Container();
                         }
 
-                        String lastMessage = chatList[index].lastMessage;
+                        // String lastMessage = chatList[index].lastMessage;
+                        String lastMessage =
+                            state.unread[chat_id]?.lastMessage ?? '';
 
                         String lastMessageTime =
-                            '${chatList[index].timestampLastMessage.hour.toString().padLeft(2, '0')}:';
+                            '${state.unread[chat_id]!.timestampLastMessage.hour.toString().padLeft(2, '0')}:';
 
                         lastMessageTime +=
-                            '${chatList[index].timestampLastMessage.minute.toString().padLeft(2, '0')}';
+                            '${state.unread[chat_id]!.timestampLastMessage.minute.toString().padLeft(2, '0')}';
 
-                        int unreadNotifs = state.unread[userPk] ?? 0;
+                        int unreadNotifs =
+                            state.unread[chat_id]!.messagesNotRead ?? 0;
 
                         return ChatTile(
                             context,

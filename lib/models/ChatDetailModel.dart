@@ -42,12 +42,14 @@ class ChatDetailModel {
 class Result {
   int sender;
   int receiver;
+  int chat;
   String body;
   DateTime timestamp;
 
   Result({
     required this.sender,
     required this.receiver,
+    required this.chat,
     required this.body,
     required this.timestamp,
   });
@@ -55,6 +57,7 @@ class Result {
   factory Result.fromJson(Map<String, dynamic> json) => Result(
         sender: json["sender"],
         receiver: json["receiver"],
+        chat: json["chat_id"],
         body: json["body"],
         timestamp: DateTime.parse(json["timestamp"]),
       );
@@ -62,6 +65,7 @@ class Result {
   Map<String, dynamic> toJson() => {
         "sender": sender,
         "receiver": receiver,
+        "chat_id": chat,
         "body": body,
         "timestamp": timestamp.toIso8601String(),
       };

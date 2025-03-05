@@ -73,14 +73,14 @@ void main() async {
     final unreadNotificationsCubit =
         navigatiorKey.currentContext!.read<UnreadNotificationsCubit>();
 
-    int key = message.sender;
-    Map<int, int> unread = unreadNotificationsCubit.state.unread;
+    int key = message.chat;
+    Map<int, Chat> unread = unreadNotificationsCubit.state.unread;
 
     if (!unread.keys.contains(key)) {
-      unread[key] = 1;
+      unread[key]!.messagesNotRead = 1;
     } else {
-      int old = unread[key] ?? 0;
-      unread[key] = old + 1;
+      int old = unread[key]!.messagesNotRead ?? 0;
+      unread[key]!.messagesNotRead = old + 1;
     }
 
     unreadNotificationsCubit
@@ -98,13 +98,13 @@ void main() async {
       if (kIsWeb) {
         Map<String, dynamic> data = jsonDecode(event.data.toString());
         int key = int.parse(data['data']['sender']);
-        Map<int, int> unread = unreadNotificationsCubit.state.unread;
+        Map<int, Chat> unread = unreadNotificationsCubit.state.unread;
 
         if (!unread.keys.contains(key)) {
-          unread[key] = 1;
+          unread[key]!.messagesNotRead = 1;
         } else {
-          int old = unread[key] ?? 0;
-          unread[key] = old + 1;
+          int old = unread[key]!.messagesNotRead ?? 0;
+          unread[key]!.messagesNotRead = old + 1;
         }
 
         unreadNotificationsCubit

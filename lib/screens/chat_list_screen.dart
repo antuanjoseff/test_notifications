@@ -31,7 +31,7 @@ class _ChatListScreenState extends State<ChatListScreen>
   List<String> allMessages = [];
   AppLifecycleState? _notification;
   List<Usuari> users = [];
-  List<ChatList> chatList = [];
+  List<Chat> chatList = [];
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
