@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 
 class ReceivedMessage extends StatefulWidget {
   Result message;
-  ReceivedMessage({super.key, required this.message});
+  ScrollController scrollController;
+  ReceivedMessage(
+      {super.key, required this.message, required this.scrollController});
 
   @override
   State<ReceivedMessage> createState() => _ReceivedMessageState();
@@ -18,6 +20,14 @@ class _ReceivedMessageState extends State<ReceivedMessage> {
     message_time =
         '${widget.message.timestamp.hour.toString().padLeft(2, '0')}:${widget.message.timestamp.minute.toString().padLeft(2, '0')}';
     super.initState();
+  }
+
+  void _scrollDown() {
+    widget.scrollController.animateTo(
+      widget.scrollController.position.maxScrollExtent,
+      duration: Duration(milliseconds: 200),
+      curve: Curves.fastOutSlowIn,
+    );
   }
 
   @override

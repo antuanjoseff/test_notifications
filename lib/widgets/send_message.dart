@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 class SendMessage extends StatefulWidget {
   Result message;
   int me;
+
   SendMessage({super.key, required this.message, required this.me});
 
   @override

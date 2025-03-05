@@ -134,6 +134,11 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
 
   GestureDetector ChatTile(BuildContext context, int chatId, Usuari user,
       String lastMessage, String lastMessageTime, int unreadNotifs) {
+    LineSplitter ls = new LineSplitter();
+    List<String> messageLines = ls.convert(lastMessage);
+    String message =
+        messageLines.length > 1 ? '${messageLines[0]}...' : messageLines[0];
+
     return GestureDetector(
       onTap: () {
         Navigator.push(
@@ -162,7 +167,7 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
                           style: const TextStyle(fontWeight: FontWeight.bold),
                         ),
                         Text(
-                          '$lastMessage',
+                          '${message}',
                           style: TextStyle(fontSize: 13),
                         ),
                       ],

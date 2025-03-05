@@ -10,7 +10,13 @@ import 'package:http/http.dart' as http;
 class SendTextMessage extends StatefulWidget {
   int receiver;
   int me;
-  SendTextMessage({super.key, required this.receiver, required this.me});
+  ScrollController scrollController;
+
+  SendTextMessage(
+      {super.key,
+      required this.receiver,
+      required this.me,
+      required this.scrollController});
 
   @override
   State<SendTextMessage> createState() => _SendTextMessageState();
@@ -52,6 +58,7 @@ class _SendTextMessageState extends State<SendTextMessage> {
                   timestamp: DateTime.now(),
                 ));
                 myController.text = '';
+
                 FocusScope.of(context).previousFocus();
               },
               child: Icon(Icons.send))

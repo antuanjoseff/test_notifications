@@ -187,6 +187,9 @@ class PushNotifications {
       if (message.notification != null) {
         if (kIsWeb) {
           debugPrint('message from foreground');
+          debugPrint('${message.notification!.body}');
+          debugPrint('${message.data.toString()}');
+
           if (!primaryStream.isClosed) {
             primaryStream.add(Result(
               body: message.notification?.body ?? '',

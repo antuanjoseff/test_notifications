@@ -83,6 +83,14 @@ class _ChatDetailState extends State<ChatDetail> {
 
   @override
   Widget build(BuildContext context) {
+    void _scrollDown() {
+      scrollController.animateTo(
+        scrollController.position.maxScrollExtent,
+        duration: Duration(milliseconds: 300),
+        curve: Curves.fastOutSlowIn,
+      );
+    }
+
     resetCubit();
 
     return Scaffold(
@@ -109,16 +117,23 @@ class _ChatDetailState extends State<ChatDetail> {
 
                             return ListView.builder(
                                 controller: scrollController,
-                                itemCount: messages
-                                    .length, //one extra element to do something
+                                itemCount: messages.length +
+                                    1, //one extra element to do something
                                 itemBuilder: (context, index) {
+                                  if (index == messages.length) {
+                                    return Container(
+                                      height: 70,
+                                    );
+                                  }
                                   if (allMessages[index].sender == widget.me) {
                                     return SendMessage(
-                                        me: widget.me,
-                                        message: allMessages[index]);
+                                      me: widget.me,
+                                      message: allMessages[index],
+                                    );
                                   } else {
                                     return ReceivedMessage(
-                                        message: allMessages[index]);
+                                        message: allMessages[index],
+                                        scrollController: scrollController);
                                   }
                                 });
                           }),
@@ -127,7 +142,11 @@ class _ChatDetailState extends State<ChatDetail> {
                 )),
           ),
           Expanded(
-              child: SendTextMessage(me: widget.me, receiver: widget.user.pk)),
+              child: SendTextMessage(
+            me: widget.me,
+            receiver: widget.user.pk,
+            scrollController: scrollController,
+          )),
         ],
       ),
     );
