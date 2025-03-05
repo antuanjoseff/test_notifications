@@ -57,7 +57,7 @@ class Result {
   factory Result.fromJson(Map<String, dynamic> json) => Result(
         sender: json["sender"],
         receiver: json["receiver"],
-        chat: json["chat_id"],
+        chat: json["chat"],
         body: json["body"],
         timestamp: DateTime.parse(json["timestamp"]),
       );
@@ -65,7 +65,7 @@ class Result {
   Map<String, dynamic> toJson() => {
         "sender": sender,
         "receiver": receiver,
-        "chat_id": chat,
+        "chat": chat,
         "body": body,
         "timestamp": timestamp.toIso8601String(),
       };

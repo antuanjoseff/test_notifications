@@ -67,21 +67,19 @@ class _ChatDetailState extends State<ChatDetail> {
       mainstreaming.resume();
     });
 
-    // scrollController.addListener(() {
-    //   debugPrint('firing');
-    // });
-
     super.initState();
   }
 
   @override
   void dispose() {
+    resetCubit();
     super.dispose();
   }
 
   void resetCubit() {
+    debugPrint('RESET CUBIT');
     Map<int, Chat> unread = unreadNotificationsCubit.state.unread;
-    int key = widget.user.pk;
+    int key = widget.chatId;
     if (unread.keys.contains(key)) {
       unread[key]!.messagesNotRead = 0;
       unreadNotificationsCubit
@@ -91,8 +89,6 @@ class _ChatDetailState extends State<ChatDetail> {
 
   @override
   Widget build(BuildContext context) {
-    resetCubit();
-
     return Scaffold(
       appBar: AppBar(
           title: Text(
@@ -109,7 +105,6 @@ class _ChatDetailState extends State<ChatDetail> {
                           // stream: StreamGroup.merge([fakeStream.stream, mainStream.stream]),
                           stream: StreamGroup.merge([secondaryStream.stream]),
                           builder: (context, snapshot) {
-                            resetCubit();
                             if (snapshot.data == null) return Container();
                             // Result message = snapshot.data!;
                             List<Result> messages = snapshot.data!;
@@ -121,7 +116,7 @@ class _ChatDetailState extends State<ChatDetail> {
                                 itemCount: messages.length +
                                     1, //one extra element to do something
                                 itemBuilder: (context, index) {
-                                  if (index == messages.length) {
+                                  if (index == (messages.length)) {
                                     return Container(
                                       height: 70,
                                     );

@@ -1,7 +1,9 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:test_notifications/models/api_data.dart';
+import 'dart:io' show Platform;
 
 extension IsOk on http.Response {
   bool get ok {
@@ -65,8 +67,15 @@ class API {
   Future<ApiData> registerDevice(String devicetoken) async {
     Uri uri = Uri.parse(register_device_url);
     Map<String, String> headers = getAuthHeaders();
+    String type = kIsWeb
+        ? 'web'
+        : Platform.isAndroid
+            ? 'android'
+            : Platform.isIOS
+                ? 'ios'
+                : '';
     String body = jsonEncode(
-        <String, String>{'registration_id': devicetoken, 'type': 'web'});
+        <String, String>{'registration_id': devicetoken, 'type': type});
 
     return doPost(uri, headers, body);
   }

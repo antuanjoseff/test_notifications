@@ -82,73 +82,74 @@ void main() async {
       int old = unread[key]!.messagesNotRead ?? 0;
       unread[key]!.messagesNotRead = old + 1;
     }
+    unread[key]!.lastMessage = message.body;
+    unread[key]!.timestampLastMessage = DateTime.now();
 
     unreadNotificationsCubit
         .setNotifications(UnreadNotificationsModel(unread: unread));
   });
 
-  web.window.onMessage.listen((web.MessageEvent event) {
-    // Handle.
+  // web.window.onMessage.listen((web.MessageEvent event) {
+  //   // Handle.
 
-    final unreadNotificationsCubit =
-        navigatiorKey.currentContext!.read<UnreadNotificationsCubit>();
+  //   final unreadNotificationsCubit =
+  //       navigatiorKey.currentContext!.read<UnreadNotificationsCubit>();
 
-    try {
-      final data = jsonDecode(event.data.toString());
-      if (kIsWeb) {
-        Map<String, dynamic> data = jsonDecode(event.data.toString());
-        int key = int.parse(data['data']['sender']);
-        Map<int, Chat> unread = unreadNotificationsCubit.state.unread;
-
-        if (!unread.keys.contains(key)) {
-          unread[key]!.messagesNotRead = 1;
-        } else {
-          int old = unread[key]!.messagesNotRead ?? 0;
-          unread[key]!.messagesNotRead = old + 1;
-        }
-
-        unreadNotificationsCubit
-            .setNotifications(UnreadNotificationsModel(unread: unread));
-      }
-    } catch (e) {
-      return;
-    }
-  });
-
-  //   OnMessage.instance.stream.listen((MessageEvent event) {
   //   try {
-  //     final unreadNotificationsCubit =
-  //         navigatiorKey.currentContext!.read<UnreadNotificationsCubit>();
+  //     final data = jsonDecode(event.data.toString());
 
-  //     try {
-  //       final data = jsonDecode(event.data.toString());
-  //       if (kIsWeb) {
-  //         Map<String, dynamic> data = jsonDecode(event.data.toString());
-  //         int key = int.parse(data['data']['sender']);
-  //         Map<int, int> unread = unreadNotificationsCubit.state.unread;
+  //     if (kIsWeb) {
+  //       Map<String, dynamic> data = jsonDecode(event.data.toString());
+  //       int key = int.parse(data['data']['chat_id']);
+  //       Map<int, Chat> unread = unreadNotificationsCubit.state.unread;
 
-  //         debugPrint('2 ${data}');
-  //         debugPrint('2 ${key}');
-  //         debugPrint('2 ${unread}');
-
-  //         if (!unread.keys.contains(key)) {
-  //           unread[key] = 1;
-  //         } else {
-  //           int old = unread[key] ?? 0;
-  //           unread[key] = old + 1;
-  //         }
-
-  //         unreadNotificationsCubit
-  //             .setNotifications(UnreadNotificationsModel(unread: unread));
+  //       if (!unread.keys.contains(key)) {
+  //         unread[key]!.messagesNotRead = 1;
+  //       } else {
+  //         int old = unread[key]!.messagesNotRead ?? 0;
+  //         unread[key]!.messagesNotRead = old + 1;
   //       }
-  //     } catch (e) {
-  //       debugPrint('Error parsing json ${event.data.toString()} . Message: $e');
-  //       return;
+
+  //       unreadNotificationsCubit
+  //           .setNotifications(UnreadNotificationsModel(unread: unread));
   //     }
   //   } catch (e) {
-  //     debugPrint('$e');
+  //     return;
   //   }
   // });
+
+  OnMessage.instance.stream.listen((MessageEvent event) {
+    try {
+      final unreadNotificationsCubit =
+          navigatiorKey.currentContext!.read<UnreadNotificationsCubit>();
+
+      try {
+        final data = jsonDecode(event.data.toString());
+        if (kIsWeb) {
+          Map<String, dynamic> data = jsonDecode(event.data.toString());
+          int key = int.parse(data['data']['chat_id']);
+          Map<int, Chat> unread = unreadNotificationsCubit.state.unread;
+
+          if (!unread.keys.contains(key)) {
+            unread[key]!.messagesNotRead = 1;
+          } else {
+            int old = unread[key]!.messagesNotRead;
+            unread[key]!.messagesNotRead = old + 1;
+          }
+
+          unread[key]!.lastMessage = data['notification']['body'];
+
+          unreadNotificationsCubit
+              .setNotifications(UnreadNotificationsModel(unread: unread));
+        }
+      } catch (e) {
+        debugPrint('Error parsing json ${event.data.toString()} . Message: $e');
+        return;
+      }
+    } catch (e) {
+      debugPrint('$e');
+    }
+  });
 
   runApp(BlocProviders());
 }
