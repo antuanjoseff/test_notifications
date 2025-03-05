@@ -4,8 +4,13 @@ import 'package:flutter/material.dart';
 class SendMessage extends StatefulWidget {
   Result message;
   int me;
+  ScrollController scrollController;
 
-  SendMessage({super.key, required this.message, required this.me});
+  SendMessage(
+      {super.key,
+      required this.message,
+      required this.me,
+      required this.scrollController});
 
   @override
   State<SendMessage> createState() => _SendMessageState();

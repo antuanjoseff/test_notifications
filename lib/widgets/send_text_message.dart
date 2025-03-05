@@ -25,6 +25,14 @@ class SendTextMessage extends StatefulWidget {
 class _SendTextMessageState extends State<SendTextMessage> {
   final myController = TextEditingController();
 
+  void _scrollDown() {
+    widget.scrollController.animateTo(
+      0.0,
+      duration: Duration(milliseconds: 200),
+      curve: Curves.fastOutSlowIn,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -49,17 +57,17 @@ class _SendTextMessageState extends State<SendTextMessage> {
           ElevatedButton(
               onPressed: () {
                 if (myController.text.isEmpty) return;
-
+                DateTime now = DateTime.now();
                 sendNotification(myController.text, widget.receiver);
                 primaryStream.add(Result(
-                  body: myController.text,
-                  sender: widget.me,
-                  receiver: widget.receiver,
-                  timestamp: DateTime.now(),
-                ));
+                    body: myController.text,
+                    sender: widget.me,
+                    receiver: widget.receiver,
+                    timestamp: now));
                 myController.text = '';
 
                 FocusScope.of(context).previousFocus();
+                _scrollDown();
               },
               child: Icon(Icons.send))
         ],

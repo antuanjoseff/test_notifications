@@ -13,13 +13,13 @@ class ChatDetailModel {
   int count;
   dynamic next;
   dynamic previous;
-  List<Result> results;
+  List<Result> messages;
 
   ChatDetailModel({
     required this.count,
     required this.next,
     required this.previous,
-    required this.results,
+    required this.messages,
   });
 
   factory ChatDetailModel.fromJson(Map<String, dynamic> json) =>
@@ -27,7 +27,7 @@ class ChatDetailModel {
         count: json["count"],
         next: json["next"],
         previous: json["previous"],
-        results:
+        messages:
             List<Result>.from(json["results"].map((x) => Result.fromJson(x))),
       );
 
@@ -35,7 +35,7 @@ class ChatDetailModel {
         "count": count,
         "next": next,
         "previous": previous,
-        "results": List<dynamic>.from(results.map((x) => x.toJson())),
+        "results": List<dynamic>.from(messages.map((x) => x.toJson())),
       };
 }
 

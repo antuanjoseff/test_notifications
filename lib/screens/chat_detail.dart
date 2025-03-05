@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:test_notifications/blocs/unread_notifications_cubit.dart';
 import 'package:test_notifications/config/router.dart';
@@ -28,7 +29,6 @@ class ChatDetail extends StatefulWidget {
 class _ChatDetailState extends State<ChatDetail> {
   String? authtoken;
   List<Result> allMessages = [];
-  ScrollController scrollController = ScrollController();
 
   final unreadNotificationsCubit =
       navigatiorKey.currentContext!.read<UnreadNotificationsCubit>();
@@ -47,22 +47,30 @@ class _ChatDetailState extends State<ChatDetail> {
     }
   }
 
+  late ScrollController scrollController;
+
   @override
   void initState() {
+    scrollController = ScrollController();
     StreamSubscription mainstreaming = primaryStream.stream.listen((message) {
-      allMessages.add(message);
+      allMessages.insert(0, message);
       secondaryStream.add(allMessages);
     });
     mainstreaming.pause();
 
     getChatDetail().then((value) {
-      allMessages = value!.results;
+      allMessages = value!.messages;
       secondaryStream.add(allMessages);
       // allMessages.forEach((m) {
       //   fakeStream.add(m);
       // });
       mainstreaming.resume();
     });
+
+    // scrollController.addListener(() {
+    //   debugPrint('firing');
+    // });
+
     super.initState();
   }
 
@@ -83,14 +91,6 @@ class _ChatDetailState extends State<ChatDetail> {
 
   @override
   Widget build(BuildContext context) {
-    void _scrollDown() {
-      scrollController.animateTo(
-        scrollController.position.maxScrollExtent,
-        duration: Duration(milliseconds: 300),
-        curve: Curves.fastOutSlowIn,
-      );
-    }
-
     resetCubit();
 
     return Scaffold(
@@ -117,6 +117,7 @@ class _ChatDetailState extends State<ChatDetail> {
 
                             return ListView.builder(
                                 controller: scrollController,
+                                reverse: true,
                                 itemCount: messages.length +
                                     1, //one extra element to do something
                                 itemBuilder: (context, index) {
@@ -125,11 +126,12 @@ class _ChatDetailState extends State<ChatDetail> {
                                       height: 70,
                                     );
                                   }
+
                                   if (allMessages[index].sender == widget.me) {
                                     return SendMessage(
-                                      me: widget.me,
-                                      message: allMessages[index],
-                                    );
+                                        me: widget.me,
+                                        message: allMessages[index],
+                                        scrollController: scrollController);
                                   } else {
                                     return ReceivedMessage(
                                         message: allMessages[index],

@@ -24,7 +24,7 @@ class _ReceivedMessageState extends State<ReceivedMessage> {
 
   void _scrollDown() {
     widget.scrollController.animateTo(
-      widget.scrollController.position.maxScrollExtent,
+      0.0,
       duration: Duration(milliseconds: 200),
       curve: Curves.fastOutSlowIn,
     );
