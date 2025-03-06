@@ -65,7 +65,7 @@ class _SendTextMessageState extends State<SendTextMessage> {
               onPressed: () {
                 if (myController.text.isEmpty) return;
                 DateTime now = DateTime.now();
-                // sendNotification(myController.text, widget.receiver);
+                sendNotification(myController.text, widget.receiver);
                 primaryStream.add(Result(
                     body: myController.text,
                     sender: widget.me,

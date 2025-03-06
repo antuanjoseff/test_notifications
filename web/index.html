@@ -63,6 +63,7 @@
           console.log('BEFORE LOCALE STORAGE...')
           localStorage.setItem('flutter.notificationExist', true)
           window.postMessage(JSON.stringify(event.data))
+          console.log('AFTER LOCALE STORAGE...')
 
         })
 

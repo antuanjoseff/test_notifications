@@ -77,7 +77,6 @@ class _ChatDetailState extends State<ChatDetail> {
   }
 
   void resetCubit() {
-    debugPrint('RESET CUBIT');
     Map<int, Chat> unread = unreadNotificationsCubit.state.unread;
     int key = widget.chatId;
     if (unread.keys.contains(key)) {

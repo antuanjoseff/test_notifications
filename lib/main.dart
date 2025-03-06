@@ -124,20 +124,29 @@ void main() async {
           navigatiorKey.currentContext!.read<UnreadNotificationsCubit>();
 
       try {
-        final data = jsonDecode(event.data.toString());
+        Map<String, dynamic> data = jsonDecode(event.data.toString());
+        debugPrint('data ${data['data']['timestamp']}');
+
         if (kIsWeb) {
-          Map<String, dynamic> data = jsonDecode(event.data.toString());
-          int key = int.parse(data['data']['chat_id']);
+          int chat_id = int.parse(data['data']['chat_id']);
           Map<int, Chat> unread = unreadNotificationsCubit.state.unread;
 
-          if (!unread.keys.contains(key)) {
-            unread[key]!.messagesNotRead = 1;
+          int unreadMessages = 0;
+          if (!unread.keys.contains(chat_id)) {
+            unreadMessages = 1;
           } else {
-            int old = unread[key]!.messagesNotRead;
-            unread[key]!.messagesNotRead = old + 1;
+            int old = unread[chat_id]!.messagesNotRead;
+            unreadMessages = old + 1;
           }
 
-          unread[key]!.lastMessage = data['notification']['body'];
+          Chat chat = Chat(
+              chatId: chat_id,
+              theOther: int.parse(data['data']['sender']),
+              lastMessage: data['notification']['body'],
+              timestampLastMessage: DateTime.parse(data['data']['timestamp']),
+              messagesNotRead: unreadMessages);
+
+          unread[chat_id] = chat;
 
           unreadNotificationsCubit
               .setNotifications(UnreadNotificationsModel(unread: unread));

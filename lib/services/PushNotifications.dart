@@ -188,6 +188,7 @@ class PushNotifications {
         if (kIsWeb) {
           debugPrint('message from foreground');
           debugPrint('${message.notification!.body}');
+          debugPrint('---------------------------');
           debugPrint('${message.data.toString()}');
 
           if (!primaryStream.isClosed) {
