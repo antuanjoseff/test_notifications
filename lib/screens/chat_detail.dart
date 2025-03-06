@@ -121,14 +121,21 @@ class _ChatDetailState extends State<ChatDetail> {
                                     );
                                   }
 
+                                  // As listview is reversed, previous message is in index + 1 position
+                                  int prevIndex =
+                                      index == allMessages.length - 1
+                                          ? index
+                                          : index + 1;
                                   if (allMessages[index].sender == widget.me) {
                                     return SendMessage(
                                         me: widget.me,
+                                        prevMessage: allMessages[prevIndex],
                                         message: allMessages[index],
                                         scrollController: scrollController);
                                   } else {
                                     return ReceivedMessage(
                                         message: allMessages[index],
+                                        prevMessage: allMessages[prevIndex],
                                         scrollController: scrollController);
                                   }
                                 });

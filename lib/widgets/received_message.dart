@@ -3,9 +3,13 @@ import 'package:flutter/material.dart';
 
 class ReceivedMessage extends StatefulWidget {
   Result message;
+  Result prevMessage;
   ScrollController scrollController;
   ReceivedMessage(
-      {super.key, required this.message, required this.scrollController});
+      {super.key,
+      required this.message,
+      required this.prevMessage,
+      required this.scrollController});
 
   @override
   State<ReceivedMessage> createState() => _ReceivedMessageState();
@@ -29,6 +33,53 @@ class _ReceivedMessageState extends State<ReceivedMessage> {
       curve: Curves.fastOutSlowIn,
     );
   }
+
+  @override
+  Widget build(BuildContext context) {
+    DateTime prev = widget.prevMessage.timestamp;
+    DateTime cur = widget.message.timestamp;
+    DateTime today = DateTime.now();
+    bool firstMessage = prev.isAtSameMomentAs(cur);
+    int curDaysAgo = today.difference(cur).inDays;
+    bool samedaysAgo = today.difference(prev).inDays == curDaysAgo;
+
+    debugPrint('days ago $samedaysAgo');
+    if (firstMessage || (!samedaysAgo)) {
+      return Align(
+          alignment: Alignment.center,
+          child: ConstrainedBox(
+              constraints: BoxConstraints(
+                maxWidth: MediaQuery.of(context).size.width - 45,
+              ),
+              child: Column(
+                children: [
+                  Card(
+                      color: Colors.grey[200],
+                      child: Padding(
+                        padding: const EdgeInsets.only(
+                            left: 20, right: 20, top: 8, bottom: 8),
+                        child: Text(
+                          curDaysAgo == 0 ? 'Avui' : 'Fa $curDaysAgo dies',
+                        ),
+                      )),
+                  ReceivedBodyMessage(
+                      widget: widget, message_time: message_time)
+                ],
+              )));
+    }
+    return ReceivedBodyMessage(widget: widget, message_time: message_time);
+  }
+}
+
+class ReceivedBodyMessage extends StatelessWidget {
+  const ReceivedBodyMessage({
+    super.key,
+    required this.widget,
+    required this.message_time,
+  });
+
+  final ReceivedMessage widget;
+  final String message_time;
 
   @override
   Widget build(BuildContext context) {
