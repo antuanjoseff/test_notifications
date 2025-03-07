@@ -27,11 +27,40 @@ class ChatDetail extends StatefulWidget {
 }
 
 class _ChatDetailState extends State<ChatDetail> {
+  late StreamSubscription mainstreaming;
+  String? username;
   String? authtoken;
   List<Result> allMessages = [];
+  List<Usuari> users = [];
+  Usuari? me;
+  String chatName = '';
+  List<Chat> chatList = [];
+  Map<int, Usuari> usersMap = {};
+  Map<int, Chat> chatsMap = {};
+  int theOtherChatMember = 0;
+  bool ready = false;
 
   final unreadNotificationsCubit =
       navigatiorKey.currentContext!.read<UnreadNotificationsCubit>();
+
+  Future<List<Usuari>> getUsers() async {
+    authtoken = authtoken ?? await getAuthtokenFromStorage();
+    ApiData apidata = await API(authtoken: authtoken!).getUsers();
+    if (apidata is Success) {
+      String utf8Response = Utf8Decoder().convert(apidata.data.bodyBytes);
+      users = usuariFromJson(utf8Response);
+
+      users.forEach((u) {
+        if (u.username == username) {
+          me = u;
+        }
+      });
+      return users;
+    } else {
+      showError(apidata);
+      return [];
+    }
+  }
 
   Future<ChatDetailModel?> getChatDetail() async {
     authtoken = authtoken ?? await getAuthtokenFromStorage();
@@ -51,21 +80,19 @@ class _ChatDetailState extends State<ChatDetail> {
 
   @override
   void initState() {
+    getUsernameFromStorage().then((value) {
+      username = value;
+    });
+    getAuthtokenFromStorage().then((value) {
+      authtoken = value;
+    });
     scrollController = ScrollController();
-    StreamSubscription mainstreaming = primaryStream.stream.listen((message) {
+    mainstreaming = primaryStream.stream.listen((message) {
       allMessages.insert(0, message);
+      debugPrint('initstate');
       secondaryStream.add(allMessages);
     });
     mainstreaming.pause();
-
-    getChatDetail().then((value) {
-      allMessages = value!.messages;
-      secondaryStream.add(allMessages);
-      // allMessages.forEach((m) {
-      //   fakeStream.add(m);
-      // });
-      mainstreaming.resume();
-    });
 
     super.initState();
   }
@@ -88,71 +115,92 @@ class _ChatDetailState extends State<ChatDetail> {
 
   @override
   Widget build(BuildContext context) {
+    getUsers().then((value) {
+      users = value;
+      getChatDetail().then((value) {
+        allMessages = value!.messages;
+        debugPrint('getChatDetail');
+        secondaryStream.add(allMessages);
+        mainstreaming.resume();
+        theOtherChatMember = (allMessages[0].receiver != (me?.pk ?? 0))
+            ? allMessages[0].receiver
+            : allMessages[0].sender;
+        Usuari theOtherUser = users.firstWhere((u) {
+          return u.pk == theOtherChatMember;
+        });
+
+        setState(() {
+          chatName =
+              '${theOtherUser.name} ${theOtherUser.firstFamilyName} ${theOtherUser.secondFamilyName}';
+          ready = true;
+        });
+      });
+    });
+
     return Scaffold(
-      appBar: AppBar(
-          title: Text(
-              '${widget.user.name ?? ''} ${widget.user.firstFamilyName ?? ''} ${widget.user.secondFamilyName ?? ''}')),
-      body: Column(
-        children: [
-          SingleChildScrollView(
-            child: SizedBox(
-                height: MediaQuery.of(context).size.height - 140,
-                child: Column(
-                  children: [
-                    Expanded(
-                      child: StreamBuilder(
-                          // stream: StreamGroup.merge([fakeStream.stream, mainStream.stream]),
-                          stream: StreamGroup.merge([secondaryStream.stream]),
-                          builder: (context, snapshot) {
-                            if (snapshot.data == null) return Container();
-                            // Result message = snapshot.data!;
-                            List<Result> messages = snapshot.data!;
-                            // allMessages.add(message);
+        appBar: AppBar(title: Text(chatName)),
+        body: Column(
+          children: [
+            SingleChildScrollView(
+              child: SizedBox(
+                  height: MediaQuery.of(context).size.height - 140,
+                  child: Column(
+                    children: [
+                      Expanded(
+                        child: StreamBuilder(
+                            // stream: StreamGroup.merge([fakeStream.stream, mainStream.stream]),
+                            stream: StreamGroup.merge([secondaryStream.stream]),
+                            builder: (context, snapshot) {
+                              if (snapshot.data == null) return Container();
+                              debugPrint('getChatDetail');
+                              List<Result> messages = snapshot.data!;
 
-                            return ListView.builder(
-                                controller: scrollController,
-                                reverse: true,
-                                itemCount: messages.length +
-                                    1, //one extra element to do something
-                                itemBuilder: (context, index) {
-                                  if (index == (messages.length)) {
-                                    return Container(
-                                      height: 70,
-                                    );
-                                  }
+                              return ListView.builder(
+                                  controller: scrollController,
+                                  reverse: true,
+                                  itemCount: messages.length +
+                                      1, //one extra element to do something
+                                  itemBuilder: (context, index) {
+                                    if (index == (messages.length)) {
+                                      return Container(
+                                        height: 70,
+                                      );
+                                    }
 
-                                  // As listview is reversed, previous message is in index + 1 position
-                                  int prevIndex =
-                                      index == allMessages.length - 1
-                                          ? index
-                                          : index + 1;
-                                  if (allMessages[index].sender == widget.me) {
-                                    return SendMessage(
-                                        me: widget.me,
-                                        prevMessage: allMessages[prevIndex],
-                                        message: allMessages[index],
-                                        scrollController: scrollController);
-                                  } else {
-                                    return ReceivedMessage(
-                                        message: allMessages[index],
-                                        prevMessage: allMessages[prevIndex],
-                                        scrollController: scrollController);
-                                  }
-                                });
-                          }),
-                    ),
-                  ],
-                )),
-          ),
-          Expanded(
-              child: SendTextMessage(
-            me: widget.me,
-            chat_id: widget.chatId,
-            receiver: widget.user.pk,
-            scrollController: scrollController,
-          )),
-        ],
-      ),
-    );
+                                    // As listview is reversed, previous message is in index + 1 position
+                                    int prevIndex =
+                                        index == allMessages.length - 1
+                                            ? index
+                                            : index + 1;
+                                    if (allMessages[index].sender == me!.pk) {
+                                      return SendMessage(
+                                          me: 13,
+                                          prevMessage: allMessages[prevIndex],
+                                          message: allMessages[index],
+                                          scrollController: scrollController);
+                                    } else {
+                                      return ReceivedMessage(
+                                          message: allMessages[index],
+                                          prevMessage: allMessages[prevIndex],
+                                          scrollController: scrollController);
+                                    }
+                                  });
+                            }),
+                      ),
+                    ],
+                  )),
+            ),
+            Expanded(
+              child: ready
+                  ? SendTextMessage(
+                      me: me!.pk,
+                      chat_id: widget.chatId,
+                      receiver: theOtherChatMember,
+                      scrollController: scrollController,
+                    )
+                  : Container(),
+            )
+          ],
+        ));
   }
 }

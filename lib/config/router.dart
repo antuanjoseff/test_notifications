@@ -1,5 +1,9 @@
+import 'dart:convert';
+
 import 'package:go_router/go_router.dart';
 import 'package:flutter/material.dart';
+import 'package:test_notifications/models/models.dart';
+import 'package:test_notifications/screens/chat_detail.dart';
 import 'package:test_notifications/screens/chat_page.dart';
 import 'package:test_notifications/screens/menu_screen.dart';
 import './secure_storage.dart';
@@ -21,11 +25,6 @@ final router = GoRouter(
       },
     ),
     GoRoute(
-      name: 'message',
-      path: '/message',
-      builder: (context, state) => MessageScreen(),
-    ),
-    GoRoute(
       name: 'menu',
       path: '/:userId/:token',
       builder: (context, state) {
@@ -33,6 +32,7 @@ final router = GoRouter(
             state.pathParameters["userId"]!; // Get "id" param from URL
         final token = state.pathParameters["token"]!; // Get "id" param from URL
         return MenuPage(username: username, authtoken: token);
+        // return ChatDetail(chatId: 1);
       },
     ),
     GoRoute(
@@ -42,5 +42,12 @@ final router = GoRouter(
         return ChatPage();
       },
     ),
+    // GoRoute(
+    //     name: 'chatdetail',
+    //     path: '/chat/:chatid',
+    //     builder: (context, state) {
+    //       final chatId = state.pathParameters["chatid"]!;
+    //       return ChatDetail(chatId: int.parse(chatId));
+    //     }),
   ],
 );
