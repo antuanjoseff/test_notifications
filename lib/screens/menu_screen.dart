@@ -1,6 +1,7 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:test_notifications/config/router.dart';
 import 'package:test_notifications/config/secure_storage.dart';
 import 'package:test_notifications/models/api.dart';

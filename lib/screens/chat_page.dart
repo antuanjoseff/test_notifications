@@ -25,23 +25,39 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
   Map<int, Usuari> usersMap = {};
   Map<int, Chat> chatsMap = {};
   List<String> allMessages = [];
-  AppLifecycleState? _notification;
+  AppLifecycleState? widgetState;
 
   final unreadNotificationsCubit =
       navigatiorKey.currentContext!.read<UnreadNotificationsCubit>();
 
   @override
   void initState() {
+    debugPrint('chatPage initsate');
+    super.initState();
     WidgetsBinding.instance.addObserver(this);
+
+    getUsers();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    debugPrint('${WidgetsBinding.instance.lifecycleState!}');
+    if (WidgetsBinding.instance.lifecycleState == AppLifecycleState.resumed) {
+      getUsers();
+    }
+  }
+
+  void getUsers() {
     getData().then((value) {
-      value.forEach((v) {
-        debugPrint(
-            'nom ${v.pk} ${v.name} ${v.firstFamilyName} ${v.secondFamilyName}');
-      });
       users = value;
       setState(() {});
     });
-    super.initState();
+  }
+
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
   }
 
   Future<List<Usuari>> getData() async {
@@ -91,16 +107,13 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
-    debugPrint('chatlist Length ${chatsMap.length}');
     return Scaffold(
         appBar: AppBar(
           title: Text('Xat'),
-          actions: const [
-            Padding(
-              padding: EdgeInsets.all(8.0),
-              child: CircleAvatar(child: Icon(Icons.search)),
-            ),
-          ],
+          leading: new IconButton(
+            icon: new Icon(Icons.arrow_back),
+            onPressed: () => router.goNamed('login'),
+          ),
         ),
         body: users.isEmpty
             ? const Center(
@@ -116,7 +129,7 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
                       itemCount: chatList.length,
                       itemBuilder: (context, index) {
                         int chat_id = chatList[index].chatId;
-                        debugPrint('CHAT ID ${chat_id}');
+
                         int userPk = chatList[index].theOther;
 
                         if (userPk == me!.pk) {
@@ -164,6 +177,11 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
           MaterialPageRoute(
             builder: (context) => ChatDetail(chatId: chatId),
           ),
+        ).then(
+          (value) {
+            debugPrint('push callback');
+            setState(() {});
+          },
         );
       },
       child: Row(

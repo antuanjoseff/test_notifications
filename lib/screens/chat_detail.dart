@@ -136,7 +136,13 @@ class _ChatDetailState extends State<ChatDetail> {
   Widget build(BuildContext context) {
     debugPrint('*');
     return Scaffold(
-        appBar: AppBar(title: Text(chatName)),
+        appBar: AppBar(
+          title: Text(chatName),
+          // leading: new IconButton(
+          //   icon: new Icon(Icons.arrow_back),
+          //   onPressed: () => router.go('/chats'),
+          // ),
+        ),
         body: Column(
           children: [
             SingleChildScrollView(

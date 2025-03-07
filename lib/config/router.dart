@@ -14,6 +14,7 @@ final navigatiorKey = GlobalKey<NavigatorState>();
 
 final router = GoRouter(
   navigatorKey: navigatiorKey,
+
   // initialLocation: initRouterPath,
   routes: [
     GoRoute(
@@ -29,6 +30,14 @@ final router = GoRouter(
         path: '/chat/:chatid',
         builder: (context, state) {
           final chatId = state.pathParameters["chatid"]!;
+          // Navigator.push(
+          //   context,
+          //   MaterialPageRoute(
+          //       settings: RouteSettings(name: '/chats'),
+          //       builder: (context) => ChatDetail(
+          //             chatId: int.parse(chatId),
+          //           )),
+          // );
           return ChatDetail(chatId: int.parse(chatId));
         }),
     GoRoute(
