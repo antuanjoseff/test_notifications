@@ -186,11 +186,6 @@ class PushNotifications {
       messageController.add(message.notification?.title ?? 'no-title');
       if (message.notification != null) {
         if (kIsWeb) {
-          debugPrint('message from foreground');
-          debugPrint('${message.notification!.body}');
-          debugPrint('---------------------------');
-          debugPrint('${message.data.toString()}');
-
           if (!primaryStream.isClosed) {
             primaryStream.add(Result(
               body: message.notification?.body ?? '',

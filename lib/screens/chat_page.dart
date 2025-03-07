@@ -162,8 +162,7 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) =>
-                ChatDetail(chatId: chatId, user: user, me: me?.pk ?? -1),
+            builder: (context) => ChatDetail(chatId: chatId),
           ),
         );
       },

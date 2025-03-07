@@ -43,7 +43,6 @@ class _ReceivedMessageState extends State<ReceivedMessage> {
     int curDaysAgo = today.difference(cur).inDays;
     bool samedaysAgo = today.difference(prev).inDays == curDaysAgo;
 
-    debugPrint('days ago $samedaysAgo');
     if (firstMessage || (!samedaysAgo)) {
       return Align(
           alignment: Alignment.center,
