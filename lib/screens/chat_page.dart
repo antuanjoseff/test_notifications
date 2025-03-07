@@ -19,13 +19,13 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
   String? username;
   String? authtoken;
   String? devicetoken;
+  List<Usuari> users = [];
+  Usuari? me;
+  List<Chat> chatList = [];
   Map<int, Usuari> usersMap = {};
   Map<int, Chat> chatsMap = {};
   List<String> allMessages = [];
   AppLifecycleState? _notification;
-  List<Usuari> users = [];
-  Usuari? me;
-  List<Chat> chatList = [];
 
   final unreadNotificationsCubit =
       navigatiorKey.currentContext!.read<UnreadNotificationsCubit>();

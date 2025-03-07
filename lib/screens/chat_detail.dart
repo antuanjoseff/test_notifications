@@ -88,6 +88,7 @@ class _ChatDetailState extends State<ChatDetail> {
 
   @override
   Widget build(BuildContext context) {
+    debugPrint('*');
     return Scaffold(
       appBar: AppBar(
           title: Text(
