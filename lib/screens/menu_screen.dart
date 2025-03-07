@@ -66,12 +66,13 @@ class _MenuPageState extends State<MenuPage> {
           ),
           ElevatedButton(
               onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      settings: RouteSettings(name: '/chats'),
-                      builder: (context) => ChatPage()),
-                );
+                router.go('/chats');
+                // Navigator.push(
+                //   context,
+                //   MaterialPageRoute(
+                //       settings: RouteSettings(name: '/chats'),
+                //       builder: (context) => ChatPage()),
+                // );
               },
               child: Text('Chats page')),
         ],

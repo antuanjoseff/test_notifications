@@ -16,10 +16,8 @@ import 'package:flutter/material.dart';
 import 'package:async/async.dart' show StreamGroup;
 
 class ChatDetail extends StatefulWidget {
-  ChatDetail(
-      {super.key, required this.me, required this.user, required this.chatId});
-  Usuari user;
-  int me;
+  ChatDetail({super.key, required this.chatId});
+
   int chatId;
 
   @override
@@ -94,6 +92,27 @@ class _ChatDetailState extends State<ChatDetail> {
     });
     mainstreaming.pause();
 
+    getUsers().then((value) {
+      users = value;
+      getChatDetail().then((value) {
+        allMessages = value!.messages;
+        secondaryStream.add(allMessages);
+        mainstreaming.resume();
+        theOtherChatMember = (allMessages[0].receiver != (me?.pk ?? 0))
+            ? allMessages[0].receiver
+            : allMessages[0].sender;
+        Usuari theOtherUser = users.firstWhere((u) {
+          return u.pk == theOtherChatMember;
+        });
+
+        setState(() {
+          chatName =
+              '${theOtherUser.name} ${theOtherUser.firstFamilyName} ${theOtherUser.secondFamilyName}';
+          ready = true;
+        });
+      });
+    });
+
     super.initState();
   }
 
@@ -115,28 +134,6 @@ class _ChatDetailState extends State<ChatDetail> {
 
   @override
   Widget build(BuildContext context) {
-    getUsers().then((value) {
-      users = value;
-      getChatDetail().then((value) {
-        allMessages = value!.messages;
-        debugPrint('getChatDetail');
-        secondaryStream.add(allMessages);
-        mainstreaming.resume();
-        theOtherChatMember = (allMessages[0].receiver != (me?.pk ?? 0))
-            ? allMessages[0].receiver
-            : allMessages[0].sender;
-        Usuari theOtherUser = users.firstWhere((u) {
-          return u.pk == theOtherChatMember;
-        });
-
-        setState(() {
-          chatName =
-              '${theOtherUser.name} ${theOtherUser.firstFamilyName} ${theOtherUser.secondFamilyName}';
-          ready = true;
-        });
-      });
-    });
-
     return Scaffold(
         appBar: AppBar(title: Text(chatName)),
         body: Column(
@@ -152,7 +149,6 @@ class _ChatDetailState extends State<ChatDetail> {
                             stream: StreamGroup.merge([secondaryStream.stream]),
                             builder: (context, snapshot) {
                               if (snapshot.data == null) return Container();
-                              debugPrint('getChatDetail');
                               List<Result> messages = snapshot.data!;
 
                               return ListView.builder(

@@ -25,6 +25,13 @@ final router = GoRouter(
       },
     ),
     GoRoute(
+        name: 'chatdetail',
+        path: '/chat/:chatid',
+        builder: (context, state) {
+          final chatId = state.pathParameters["chatid"]!;
+          return ChatDetail(chatId: int.parse(chatId));
+        }),
+    GoRoute(
       name: 'menu',
       path: '/:userId/:token',
       builder: (context, state) {
@@ -42,12 +49,5 @@ final router = GoRouter(
         return ChatPage();
       },
     ),
-    // GoRoute(
-    //     name: 'chatdetail',
-    //     path: '/chat/:chatid',
-    //     builder: (context, state) {
-    //       final chatId = state.pathParameters["chatid"]!;
-    //       return ChatDetail(chatId: int.parse(chatId));
-    //     }),
   ],
 );

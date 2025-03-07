@@ -10,7 +10,7 @@ AndroidOptions _getAndroidOptions() => const AndroidOptions(
 final storage = FlutterSecureStorage(aOptions: _getAndroidOptions());
 
 Future<String?> getUsernameFromStorage() async {
-  debugPrint('Inside STORAGE');
+  debugPrint('Inside STORAGEX');
   return await storage.read(key: 'username') ?? null;
 }
 
