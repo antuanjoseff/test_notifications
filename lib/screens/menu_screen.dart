@@ -37,46 +37,75 @@ class _MenuPageState extends State<MenuPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          kIsWeb
-              ? ElevatedButton(
-                  onPressed: !dataReady
-                      ? null
-                      : () async {
-                          AuthorizationStatus status =
-                              await PushNotifications.initialize();
-                          if (status == AuthorizationStatus.authorized) {
-                            String? devicetoken =
-                                await getDeviceTokenFromStorage();
-                            //TODO:API Register device
-                            if (devicetoken != null) {
-                              API(authtoken: widget.authtoken)
-                                  .registerDevice(devicetoken!);
-                            }
-                          }
-                        },
-                  child: !dataReady
-                      ? CircularProgressIndicator()
-                      : Text('Allow notifications'))
-              : Container(),
-          const SizedBox(
-            height: 20,
+    return Scaffold(
+      bottomNavigationBar: Container(
+          height: 150,
+          decoration: const BoxDecoration(
+            color: Colors.green,
+            borderRadius: BorderRadius.only(
+                topRight: Radius.circular(50), topLeft: Radius.circular(50)),
+            // boxShadow: [
+            //   BoxShadow(color: Colors.black38, spreadRadius: 0, blurRadius: 10),
+            // ],
           ),
-          ElevatedButton(
-              onPressed: () {
-                router.go('/chats');
-                // Navigator.push(
-                //   context,
-                //   MaterialPageRoute(
-                //       settings: RouteSettings(name: '/chats'),
-                //       builder: (context) => ChatPage()),
-                // );
-              },
-              child: Text('Chats page')),
-        ],
+          child: const ClipRRect(
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(30.0),
+              topRight: Radius.circular(30.0),
+            ),
+            child: Center(
+                child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                Icon(Icons.search, size: 50),
+                Icon(Icons.notification_add_rounded, size: 50),
+                Icon(Icons.add_a_photo_rounded, size: 50),
+                Icon(Icons.assistant_navigation, size: 50),
+                Icon(Icons.people, size: 50),
+              ],
+            )),
+          )),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            kIsWeb
+                ? ElevatedButton(
+                    onPressed: !dataReady
+                        ? null
+                        : () async {
+                            AuthorizationStatus status =
+                                await PushNotifications.initialize();
+                            if (status == AuthorizationStatus.authorized) {
+                              String? devicetoken =
+                                  await getDeviceTokenFromStorage();
+                              //TODO:API Register device
+                              if (devicetoken != null) {
+                                API(authtoken: widget.authtoken)
+                                    .registerDevice(devicetoken!);
+                              }
+                            }
+                          },
+                    child: !dataReady
+                        ? CircularProgressIndicator()
+                        : Text('Allow notifications'))
+                : Container(),
+            const SizedBox(
+              height: 20,
+            ),
+            ElevatedButton(
+                onPressed: () {
+                  router.go('/chats');
+                  // Navigator.push(
+                  //   context,
+                  //   MaterialPageRoute(
+                  //       settings: RouteSettings(name: '/chats'),
+                  //       builder: (context) => ChatPage()),
+                  // );
+                },
+                child: Text('Chats page')),
+          ],
+        ),
       ),
     );
   }
