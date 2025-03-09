@@ -9,9 +9,11 @@ import '../models/models.dart';
 Future _firebaseBackgroundMessage(RemoteMessage message) async {
   if (message.notification != null) {
     debugPrint('add element to stream!');
+    await PushNotifications.groupNotifications;
     PushNotifications.messageController
         .add(message.notification?.body ?? 'no-title');
 
+    // Check if these lines really usefull
     List<String> allMessages = await getMessageFromStorage('u8839485');
     debugPrint('all messages $allMessages');
     allMessages.add(message.notification?.title ?? 'no-title');
@@ -219,5 +221,36 @@ class PushNotifications {
 
   static closeStreams() {
     messageController.close();
+  }
+
+  static void groupNotifications() async {
+    List<ActiveNotification>? activeNotifications =
+        await _flutterLocalNotificationsPlugin
+            .resolvePlatformSpecificImplementation<
+                AndroidFlutterLocalNotificationsPlugin>()
+            ?.getActiveNotifications();
+
+    if (activeNotifications != null && activeNotifications.length > 0) {
+      List<String> lines =
+          activeNotifications.map((e) => e.title.toString()).toList();
+      InboxStyleInformation inboxStyleInformation = InboxStyleInformation(
+        lines,
+        contentTitle: "${activeNotifications.length - 1} Updates",
+        summaryText: "${activeNotifications.length - 1} Updates",
+      );
+      AndroidNotificationDetails groupNotificationDetails =
+          AndroidNotificationDetails(
+        channel.id,
+        channel.name,
+        styleInformation: inboxStyleInformation,
+        setAsGroupSummary: true,
+        groupKey: channel.groupId,
+        // onlyAlertOnce: true,
+      );
+      NotificationDetails groupNotificationDetailsPlatformSpefics =
+          NotificationDetails(android: groupNotificationDetails);
+      await _flutterLocalNotificationsPlugin.show(
+          0, '', '', groupNotificationDetailsPlatformSpefics);
+    }
   }
 }
