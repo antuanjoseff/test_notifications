@@ -1,6 +1,4 @@
 import 'dart:convert';
-import 'dart:js_interop';
-import 'package:web/web.dart' as web;
 import 'package:onmessage/onmessage.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
@@ -11,7 +9,7 @@ import 'package:test_notifications/blocs/unread_notifications_cubit.dart';
 import 'package:test_notifications/config/router.dart';
 import 'package:test_notifications/models/User.dart';
 import 'package:test_notifications/blocs/UserCubit.dart';
-import 'package:test_notifications/models/api.dart';
+
 import 'package:test_notifications/models/models.dart';
 import 'package:test_notifications/services/PushNotifications.dart';
 import 'package:test_notifications/utils/lib.dart';

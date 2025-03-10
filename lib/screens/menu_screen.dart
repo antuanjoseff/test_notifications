@@ -8,6 +8,7 @@ import 'package:test_notifications/models/api.dart';
 import 'package:test_notifications/screens/chat_page.dart';
 import 'package:test_notifications/services/PushNotifications.dart';
 import '../models/models.dart';
+import '../vars/styles.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class MenuPage extends StatefulWidget {
@@ -40,16 +41,16 @@ class _MenuPageState extends State<MenuPage> {
     return Scaffold(
       bottomNavigationBar: Container(
           height: 150,
-          decoration: const BoxDecoration(
-            color: Colors.green,
-            borderRadius: BorderRadius.only(
+          decoration: BoxDecoration(
+            color: primaryColor,
+            borderRadius: const BorderRadius.only(
                 topRight: Radius.circular(50), topLeft: Radius.circular(50)),
             // boxShadow: [
             //   BoxShadow(color: Colors.black38, spreadRadius: 0, blurRadius: 10),
             // ],
           ),
-          child: const ClipRRect(
-            borderRadius: BorderRadius.only(
+          child: ClipRRect(
+            borderRadius: const BorderRadius.only(
               topLeft: Radius.circular(30.0),
               topRight: Radius.circular(30.0),
             ),
@@ -57,11 +58,11 @@ class _MenuPageState extends State<MenuPage> {
                 child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                Icon(Icons.search, size: 50),
-                Icon(Icons.notification_add_rounded, size: 50),
-                Icon(Icons.add_a_photo_rounded, size: 50),
-                Icon(Icons.assistant_navigation, size: 50),
-                Icon(Icons.people, size: 50),
+                Icon(searchIcon, size: 50, color: activeIconColor),
+                Icon(chatIcon, size: 50, color: inactiveIconColor),
+                Icon(publishIcon, size: 50, color: inactiveIconColor),
+                Icon(tripIcon, size: 50, color: inactiveIconColor),
+                Icon(userIcon, size: 50, color: inactiveIconColor),
               ],
             )),
           )),
