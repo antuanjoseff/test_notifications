@@ -185,6 +185,7 @@ class PushNotifications {
 
     // to handle foreground notifications
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+      debugPrint('notification in foreground');
       messageController.add(message.notification?.title ?? 'no-title');
       if (message.notification != null) {
         if (kIsWeb) {

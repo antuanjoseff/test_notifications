@@ -107,10 +107,10 @@ class API {
     }
   }
 
-  Future<ApiData> getChatDetail(int userid) async {
+  Future<ApiData> getChatDetail(String chatId) async {
     try {
       http.Response response = await http
-          .get(Uri.parse('$chat_detail_url/$userid'), headers: <String, String>{
+          .get(Uri.parse('$chat_detail_url/$chatId'), headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
         'Authorization': 'Token ${authtoken}'
       });

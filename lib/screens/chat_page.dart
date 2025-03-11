@@ -172,17 +172,8 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
 
     return GestureDetector(
       onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => ChatDetail(chatId: chatId),
-          ),
-        ).then(
-          (value) {
-            debugPrint('push callback');
-            setState(() {});
-          },
-        );
+        router.goNamed('chatdetail',
+            pathParameters: {'chatid': chatId.toString()});
       },
       child: Row(
         children: [
@@ -210,15 +201,16 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
                     Column(
                       children: [
                         Text(lastMessageTime),
-                        unreadNotifs != 0
-                            ? CircleAvatar(
-                                backgroundColor: Colors.green,
-                                radius: 12,
-                                child: Text('$unreadNotifs',
-                                    style: TextStyle(
-                                        color: Colors.white, fontSize: 15)),
-                              )
-                            : Container()
+                        AnimatedSize(
+                          duration: Duration(seconds: 2),
+                          child: CircleAvatar(
+                            backgroundColor: Colors.green,
+                            radius: unreadNotifs != 0 ? 12 : 0,
+                            child: Text('$unreadNotifs',
+                                style: TextStyle(
+                                    color: Colors.white, fontSize: 15)),
+                          ),
+                        )
                       ],
                     ),
                   ],

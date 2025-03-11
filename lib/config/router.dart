@@ -18,29 +18,6 @@ final router = GoRouter(
   // initialLocation: initRouterPath,
   routes: [
     GoRoute(
-      name:
-          'login', // Optional, add name to your routes. Allows you navigate by name instead of path
-      path: '/',
-      builder: (context, state) {
-        return LoginScreen();
-      },
-    ),
-    GoRoute(
-        name: 'chatdetail',
-        path: '/chat/:chatid',
-        builder: (context, state) {
-          final chatId = state.pathParameters["chatid"]!;
-          // Navigator.push(
-          //   context,
-          //   MaterialPageRoute(
-          //       settings: RouteSettings(name: '/chats'),
-          //       builder: (context) => ChatDetail(
-          //             chatId: int.parse(chatId),
-          //           )),
-          // );
-          return ChatDetail(chatId: int.parse(chatId));
-        }),
-    GoRoute(
       name: 'menu',
       path: '/:userId/:token',
       builder: (context, state) {
@@ -52,11 +29,35 @@ final router = GoRouter(
       },
     ),
     GoRoute(
-      name: 'chats',
-      path: '/chats',
-      builder: (context, state) {
-        return ChatPage();
-      },
-    ),
+        name: 'login',
+        path: '/',
+        builder: (context, state) {
+          return LoginScreen();
+        },
+        routes: [
+          GoRoute(
+              name: 'chats',
+              path: '/chats',
+              builder: (context, state) {
+                return ChatPage();
+              },
+              routes: [
+                GoRoute(
+                    name: 'chatdetail',
+                    path: '/detail/:chatid',
+                    builder: (context, state) {
+                      final chatId = state.pathParameters["chatid"]!;
+                      // Navigator.push(
+                      //   context,
+                      //   MaterialPageRoute(
+                      //       settings: RouteSettings(name: '/chats'),
+                      //       builder: (context) => ChatDetail(
+                      //             chatId: int.parse(chatId),
+                      //           )),
+                      // );
+                      return ChatDetail(chatId: chatId);
+                    }),
+              ]),
+        ]),
   ],
 );

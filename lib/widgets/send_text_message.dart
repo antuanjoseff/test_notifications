@@ -13,7 +13,7 @@ import 'package:http/http.dart' as http;
 class SendTextMessage extends StatefulWidget {
   int receiver;
   int me;
-  int chat_id;
+  String chat_id;
   ScrollController scrollController;
 
   SendTextMessage(
@@ -69,12 +69,12 @@ class _SendTextMessageState extends State<SendTextMessage> {
                 primaryStream.add(Result(
                     body: myController.text,
                     sender: widget.me,
-                    chat: widget.chat_id,
+                    chat: int.parse(widget.chat_id),
                     receiver: widget.receiver,
                     timestamp: now));
 
                 Map<int, Chat> unread = unreadNotificationsCubit.state.unread;
-                int key = widget.chat_id;
+                String key = widget.chat_id;
                 if (unread.keys.contains(key)) {
                   unread[key]!.lastMessage = myController.text;
                   unread[key]!.timestampLastMessage = now;

@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'package:flutter/scheduler.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:test_notifications/blocs/unread_notifications_cubit.dart';
 import 'package:test_notifications/config/router.dart';
@@ -18,7 +17,7 @@ import 'package:async/async.dart' show StreamGroup;
 class ChatDetail extends StatefulWidget {
   ChatDetail({super.key, required this.chatId});
 
-  int chatId;
+  String chatId;
 
   @override
   State<ChatDetail> createState() => _ChatDetailState();
@@ -124,7 +123,7 @@ class _ChatDetailState extends State<ChatDetail> {
 
   void resetCubit() {
     Map<int, Chat> unread = unreadNotificationsCubit.state.unread;
-    int key = widget.chatId;
+    String key = widget.chatId;
     if (unread.keys.contains(key)) {
       unread[key]!.messagesNotRead = 0;
       unreadNotificationsCubit

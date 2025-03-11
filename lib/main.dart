@@ -128,8 +128,8 @@ void main() async {
         if (kIsWeb) {
           int chat_id = int.parse(data['data']['chat_id']);
           Map<int, Chat> unread = unreadNotificationsCubit.state.unread;
-
           int unreadMessages = 0;
+
           if (!unread.keys.contains(chat_id)) {
             unreadMessages = 1;
           } else {

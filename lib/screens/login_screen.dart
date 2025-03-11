@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:go_router/go_router.dart';
 import '../config/secure_storage.dart';
-import 'package:web/web.dart' as web;
 
 final Uri _url =
     Uri.parse('https://sigserver4.udg.edu/apps/carpool/saml2/login');
@@ -64,7 +63,8 @@ class _LoginScreenState extends State<LoginScreen> {
 Future<void> _launchUrl() async {
   if (kIsWeb) {
     debugPrint('open in web same tab');
-    web.window.open(_url.toString(), '_self');
+    // web.window.open(_url.toString(), '_self');
+    !await launchUrl(_url, webOnlyWindowName: '_self');
   } else {
     if (!await launchUrl(_url, mode: LaunchMode.externalApplication)) {
       throw Exception('Could not launch $_url');

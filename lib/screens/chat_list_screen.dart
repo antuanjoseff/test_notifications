@@ -7,7 +7,7 @@ import 'package:test_notifications/models/ChatList.dart';
 import 'package:test_notifications/blocs/UserCubit.dart';
 import 'package:test_notifications/models/Usuari.dart';
 import 'package:test_notifications/services/PushNotifications.dart';
-import 'package:web/web.dart' as web;
+
 import '../config/config.dart';
 import 'package:http/http.dart' as http;
 
@@ -144,7 +144,8 @@ class _ChatListScreenState extends State<ChatListScreen>
 Future<void> _launchUrl() async {
   if (kIsWeb) {
     debugPrint('open in web same tab');
-    web.window.open(_url.toString(), '_self');
+    // web.window.open(_url.toString(), '_self');
+    !await launchUrl(_url, webOnlyWindowName: '_self');
   } else {
     if (!await launchUrl(_url, mode: LaunchMode.externalApplication)) {
       throw Exception('Could not launch $_url');

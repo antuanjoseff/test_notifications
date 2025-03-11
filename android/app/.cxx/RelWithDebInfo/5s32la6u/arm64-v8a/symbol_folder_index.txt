@@ -1,0 +1,1 @@
+E:\toni\sigte\tests\flutter\test_notifications\build\app\intermediates\cxx\RelWithDebInfo\5s32la6u\obj\arm64-v8a
